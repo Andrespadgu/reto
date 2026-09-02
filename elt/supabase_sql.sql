@@ -176,17 +176,14 @@ scores AS (
     JOIN features_confiabilidad fc ON fs.id_publicacion = fc.id_publicacion
 ),
 
--- ── CTE 4: cortes de decision (p33 y p66 sobre Indice_Sospecha) ──────────────
--- Valores calibrados con pandas sobre BASE.csv (3.210 filas):
---   p33 = 21.02  p66 = 34.95
--- Se recalculan aqui sobre el total real de la tabla para que sean dinamicos
--- si data-engineer agrega filas. Si se quiere fijar los umbrales de pandas,
--- reemplazar esta CTE por: SELECT 21.02 AS p33, 34.95 AS p66
+-- ── CTE 4: cortes de decision (umbrales fijos calibrados por criterio de negocio) ─
+-- Umbrales elegidos por criterio de perfil, NO por percentiles mecanicos:
+--   umbral_bajo = 30  -> p75 Fan_Antiguo=27.3, p75 Verificado=23.9 quedan bajo este corte
+--   umbral_alto = 50  -> mediana Anonimo=48.9, captura 82% Cuenta_Nueva y 98% Bot
+-- Resultado: mantener=36.4% / bajar_video=25.5% / cancelar=38.1%
+-- Validacion: Bot>97.8% en cancelar, Verificado>93.8% en mantener (ver calibracion_umbrales.py)
 cortes AS (
-    SELECT
-        PERCENTILE_CONT(0.33) WITHIN GROUP (ORDER BY indice_sospecha) AS p33,
-        PERCENTILE_CONT(0.66) WITHIN GROUP (ORDER BY indice_sospecha) AS p66
-    FROM scores
+    SELECT 30.0 AS umbral_bajo, 50.0 AS umbral_alto
 )
 
 -- ── SELECT final: cada publicacion con su decision ────────────────────────────
@@ -225,14 +222,14 @@ SELECT
 
     -- Decision de moderacion
     CASE
-        WHEN s.indice_sospecha < c.p33  THEN 'mantener'
-        WHEN s.indice_sospecha <= c.p66 THEN 'bajar_video'
-        ELSE                                 'cancelar'
+        WHEN s.indice_sospecha < c.umbral_bajo  THEN 'mantener'
+        WHEN s.indice_sospecha <= c.umbral_alto THEN 'bajar_video'
+        ELSE                                         'cancelar'
     END AS decision,
 
     -- Umbrales usados (para referencia en el dashboard)
-    ROUND(c.p33::NUMERIC, 2) AS umbral_p33,
-    ROUND(c.p66::NUMERIC, 2) AS umbral_p66
+    c.umbral_bajo AS umbral_mantener,
+    c.umbral_alto AS umbral_cancelar
 
 FROM scores s, cortes c;
 
@@ -653,8 +650,8 @@ $$;
 -- Contar filas en la vista materializada (debe ser igual a publicaciones)
 SELECT COUNT(*) AS total_mv_scores FROM public.mv_scores;
 
--- Umbrales usados (deben ser ~21.02 y ~34.95 con BASE.csv)
-SELECT DISTINCT umbral_p33, umbral_p66 FROM public.mv_scores;
+-- Umbrales usados (deben ser 30.0 y 50.0 — calibrados por criterio de perfil)
+SELECT DISTINCT umbral_mantener, umbral_cancelar FROM public.mv_scores;
 
 -- Muestra de las primeras 5 filas con scores
 SELECT

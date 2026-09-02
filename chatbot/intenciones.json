@@ -3,8 +3,13 @@
     "proyecto": "Cancelado — caso Kai Duarte",
     "dataset": "3.210 publicaciones de X, TikTok, Instagram y Foros anónimos",
     "cortes": {
-      "p33": 21.0,
-      "p66": 35.0
+      "umbral_mantener": 30.0,
+      "umbral_cancelar": 50.0
+    },
+    "distribucion": {
+      "mantener_pct": 36.4,
+      "bajar_video_pct": 25.5,
+      "cancelar_pct": 38.1
     },
     "version": "1.0"
   },
@@ -27,9 +32,9 @@
         "que significa el score"
       ],
       "respuestas": [
-        "El Indice_Sospecha es un puntaje de 0 a 100 que se calcula por publicación. Combina 5 señales: el tipo de perfil (peso 35%), la antigüedad invertida de la cuenta (25%), la velocidad de viralización (20%), si el contenido es reciclado (10%) y el tipo de publicación (10%). Un score alto —por encima de 35— activa la recomendación de cancelar. Un score bajo —por debajo de 21— indica mantener.",
+        "El Indice_Sospecha es un puntaje de 0 a 100 que se calcula por publicación. Combina 5 señales: el tipo de perfil (peso 35%), la antigüedad invertida de la cuenta (25%), la velocidad de viralización (20%), si el contenido es reciclado (10%) y el tipo de publicación (10%). Un score alto —por encima de 50— activa la recomendación de cancelar. Un score bajo —por debajo de 30— indica mantener.",
         "Es el corazón del sistema: una sola cifra de 0 a 100 por publicación que resume qué tan sospechosa es su fuente y su comportamiento. Lo domina el perfil de la cuenta —vale 35 de los 100 puntos— porque un Bot o una Cuenta_Nueva es estructuralmente menos fiable que una cuenta Verificada. En el dataset de 3.210 registros, la mediana global es 26.8.",
-        "El Indice_Sospecha agrega cinco factores en una escala 0-100. El factor más pesado es el perfil del usuario (35%): los bots alcanzan medianas de 82.6 y las cuentas verificadas apenas 19.1. Los cortes en el percentil 33 (score=21) y el percentil 66 (score=35) dividen el dataset en tres decisiones aproximadamente iguales."
+        "El Indice_Sospecha agrega cinco factores en una escala 0-100. El factor más pesado es el perfil del usuario (35%): los bots alcanzan medianas de 82.6 y las cuentas verificadas apenas 19.1. Los cortes —calibrados por perfil, no por percentil— están en 30 (mantener) y 50 (cancelar), produciendo una distribución real: 36.4% mantener / 25.5% bajar video / 38.1% cancelar."
       ]
     },
     {
@@ -90,9 +95,9 @@
         "cuando recomienda cancelar"
       ],
       "respuestas": [
-        "El sistema recomienda 'cancelar' cuando el Indice_Sospecha supera el percentil 66 del dataset, es decir, score mayor a 35.0. Eso representa el 34% de las 3.210 publicaciones —aproximadamente 1.091 registros. Esta decisión significa que las pruebas son confiables y suficientes para actuar: se justifica romper el contrato con el creador o la marca.",
-        "La decisión 'cancelar' es la más extrema: aplica a publicaciones con Indice_Sospecha > 35 y concentra el 100% de los bots (mediana de sospecha 82.6) y el 98.7% de las cuentas nuevas. El 34% del dataset cae en esta categoría. En el contexto del caso Kai Duarte, significa que la plataforma tiene evidencia suficiente para romper contratos con PulsoTech, UrbanKrew o NovaVolt.",
-        "Cuando el sistema dice 'cancelar' (34% de los registros), la interpretación es: hay suficientes señales consistentes y confiables —perfil de bot, cuenta muy nueva, velocidad viral anómala— para que la acción sea justificable públicamente. No se basa en una sola publicación sino en el patrón agregado por encima del percentil 66 (score=35)."
+        "El sistema recomienda 'cancelar' cuando el Indice_Sospecha supera 50 —umbral calibrado para capturar el 97.8% de los bots y el 82.1% de las cuentas nuevas. Eso representa el 38.1% de las 3.210 publicaciones. Esta decisión significa que las pruebas son confiables y suficientes para actuar: se justifica romper el contrato con el creador o la marca.",
+        "La decisión 'cancelar' es la más extrema: aplica a publicaciones con Indice_Sospecha > 50 y concentra el 97.8% de los bots (mediana de sospecha 82.6) y el 82.1% de las cuentas nuevas. El 38.1% del dataset cae en esta categoría. En el contexto del caso Kai Duarte, significa que la plataforma tiene evidencia suficiente para romper contratos con PulsoTech, UrbanKrew o NovaVolt.",
+        "Cuando el sistema dice 'cancelar' (38.1% de los registros), la interpretación es: hay suficientes señales consistentes y confiables —perfil de bot, cuenta muy nueva, velocidad viral anómala— para que la acción sea justificable públicamente. El umbral de 50 se eligió porque separa a Anónimo (mediana 48.9) de Cuenta_Nueva (57.2) — el salto natural en los datos."
       ]
     },
     {
@@ -116,8 +121,8 @@
         "que recomienda bajar"
       ],
       "respuestas": [
-        "La decisión 'bajar_video' aplica cuando el Indice_Sospecha está entre 21.0 y 35.0 —la zona media entre los percentiles 33 y 66. Representa el 33% del dataset (unos 1.059 registros). La evidencia justifica retirar el contenido para detener la desinformación, pero no es suficientemente sólida para romper contratos.",
-        "El 33% de publicaciones caen en la zona de 'bajar_video' (score entre 21 y 35). Es la decisión de término medio: hay señales de alerta —velocidad un poco elevada, perfil anónimo— pero sin la contundencia de un bot o cuenta de 0 días. Los perfiles anónimos son los más representados aquí, con un 48.7% de sus publicaciones en esta zona.",
+        "La decisión 'bajar_video' aplica cuando el Indice_Sospecha está entre 30 y 50 —la zona gris calibrada para absorber la ambigüedad del perfil Anónimo. Representa el 25.5% del dataset. La evidencia justifica retirar el contenido para detener la desinformación, pero no es suficientemente sólida para romper contratos.",
+        "El 25.5% de publicaciones caen en la zona de 'bajar_video' (score entre 30 y 50). Es la decisión de término medio: hay señales de alerta —velocidad un poco elevada, perfil anónimo— pero sin la contundencia de un bot o cuenta de 0 días. El 52.5% de los perfiles Anónimos queda en esta zona, que es exactamente donde debe estar un perfil ambiguo.",
         "Esta decisión refleja incertidumbre controlada: el sistema detecta suficientes señales para no ignorar la publicación (no 'mantener'), pero no las suficientes para una acción legal (no 'cancelar'). Se traduce en: retirar el video del trending, no en rescindir contratos. Es la salida más conservadora que aun así protege a las marcas."
       ]
     },
@@ -137,8 +142,8 @@
         "cuando no actuar"
       ],
       "respuestas": [
-        "La decisión 'mantener' aplica cuando el Indice_Sospecha es menor a 21.0 —por debajo del percentil 33— y representa el 33% del dataset. Significa que las pruebas son demasiado débiles, fabricadas o sin corroboración suficiente para actuar. Actuar en base a estas publicaciones sería un error con costo reputacional.",
-        "El 33% de publicaciones caen en 'mantener'. Las cuentas Verificadas son las protagonistas: el 61.5% de sus publicaciones queda en esta categoría —con mediana de Indice_Sospecha de apenas 19.1. También el 51% de los Fan_Antiguo. El mensaje es claro: las fuentes establecidas y con historial generan evidencia que no justifica acción.",
+        "La decisión 'mantener' aplica cuando el Indice_Sospecha es menor a 30 —umbral elegido porque el p75 de Fan_Antiguo es 27.3 y el p75 de Verificado es 23.9, ambos por debajo de este corte. Representa el 36.4% del dataset. Significa que las pruebas son demasiado débiles o sin corroboración suficiente para actuar.",
+        "El 36.4% de publicaciones caen en 'mantener'. Las cuentas Verificadas son las protagonistas: el 93.8% de sus publicaciones queda en esta categoría —con mediana de Indice_Sospecha de apenas 19.1. También el 84.8% de los Fan_Antiguo. El umbral de 30 se eligió precisamente para proteger a estos perfiles de falsos positivos.",
         "Cuando el sistema dice 'mantener', no significa que Kai Duarte sea inocente —significa que esas publicaciones específicas no aportan evidencia accionable. Muchas pueden ser opiniones, contenido legítimo o simplemente ruido. El sistema filtra el ruido para que la decisión final se base solo en los registros con score alto."
       ]
     },
@@ -341,7 +346,7 @@
       "respuestas": [
         "El sistema sigue tres pasos: 1) Carga del CSV crudo de 3.210 publicaciones a Supabase (PostgreSQL) sin modificar nada. 2) Cálculo de Indice_Sospecha y Score_Confiabilidad con SQL dentro de Supabase —usando funciones y vistas que procesan las 17 columnas del dataset. 3) Dashboard HTML que consulta Supabase en tiempo real y muestra los scores, la distribución de decisiones y el chat de demo.",
         "Es un pipeline ELT (Extract, Load, Transform) donde la 'T' vive en la base de datos, no en el cliente. El CSV entra a Supabase tal cual, y SQL hace todo el trabajo pesado: calcula los percentiles, pondera las features y asigna las tres decisiones. El resultado se expone en un dashboard interactivo que cualquier decisor puede consultar sin saber SQL.",
-        "El flujo completo: CSV con 3.210 publicaciones de X, TikTok, Instagram y foros → carga directa a Supabase → SQL calcula Indice_Sospecha (0-100) y Score_Confiabilidad (0-100) por publicación → cortes en percentil 33 (score=21) y percentil 66 (score=35) generan tres zonas: mantener (33%), bajar_video (33%), cancelar (34%) → dashboard HTML + chatbot de demo para presentar al jurado."
+        "El flujo completo: CSV con 3.210 publicaciones de X, TikTok, Instagram y foros → carga directa a Supabase → SQL calcula Indice_Sospecha (0-100) y Score_Confiabilidad (0-100) por publicación → cortes calibrados por criterio de perfil (30 y 50) generan tres zonas: mantener (36.4%), bajar_video (25.5%), cancelar (38.1%) → dashboard HTML + chatbot de demo para presentar al jurado."
       ]
     },
     {
@@ -361,15 +366,15 @@
         "como llego a ese score"
       ],
       "respuestas": [
-        "Tomemos el caso concreto del ID 2440 (@despiertaya_760, score 85.9): el perfil es Bot_Sospechoso —aporta 35 puntos de entrada. La cuenta tiene 0 días de antigüedad —la antigüedad invertida llega a su máximo, aportando 25 puntos más. La velocidad de viralización está en percentil alto. Esos tres factores solos ya superan el corte de 35 para 'cancelar'. El tipo de publicación (Repost) agrega un poco más.",
-        "Un registro llega a score alto porque acumula puntos en múltiples factores a la vez. El ejemplo más extremo es ID 2440: Bot (35 pts) + cuenta de 0 días (25 pts) + velocidad viral alta (20 pts) = 80 puntos antes de considerar el tipo de contenido. No se necesita contenido reciclado ni transcripción de audio para llegar a 'cancelar' cuando el perfil y la antigüedad ya disparan las señales.",
+        "Tomemos el caso concreto del ID 2440 (@despiertaya_760, score 85.9): el perfil es Bot_Sospechoso —aporta 35 puntos de entrada. La cuenta tiene 0 días de antigüedad —la antigüedad invertida llega a su máximo, aportando 25 puntos más. La velocidad de viralización está en percentil alto. Esos tres factores solos ya superan ampliamente el corte de 50 para 'cancelar'. El tipo de publicación (Repost) agrega un poco más.",
+        "Un registro llega a score alto porque acumula puntos en múltiples factores a la vez. El ejemplo más extremo es ID 2440: Bot (35 pts) + cuenta de 0 días (25 pts) + velocidad viral alta (20 pts) = 80 puntos antes de considerar el tipo de contenido. Con el umbral de cancelar en 50, este registro lo supera por 35 puntos —no hay ambigüedad posible.",
         "La pregunta clave es siempre: ¿qué factores se activaron? Para un registro con score alto típicamente son: perfil de riesgo (Bot o Cuenta_Nueva, vale 35%), cuenta muy reciente (antigüedad invertida alta, vale 25%) y velocidad de viralización en el top del percentil (vale 20%). Esos tres juntos ya superan 60 puntos, muy por encima del corte de 35 para 'cancelar'."
       ]
     }
   ],
   "fallback": [
     "Esa pregunta está fuera del alcance de esta demo, pero puedo explicarte el Indice_Sospecha, el Score_Confiabilidad, cómo se detectó el contenido reciclado, por qué no se usó Machine Learning, o qué significan las tres decisiones del sistema.",
-    "No tengo esa información disponible en este demo. Lo que sí puedo mostrarte es cómo el sistema clasifica las 3.210 publicaciones en tres decisiones (cancelar 34%, bajar_video 33%, mantener 33%), o los detalles de cualquiera de los dos scores. ¿Quieres que te explique alguno?",
+    "No tengo esa información disponible en este demo. Lo que sí puedo mostrarte es cómo el sistema clasifica las 3.210 publicaciones en tres decisiones (cancelar 38.1%, bajar_video 25.5%, mantener 36.4%), o los detalles de cualquiera de los dos scores. ¿Quieres que te explique alguno?",
     "Buena pregunta —está fuera del guión de la demo. Pero puedo darte cifras concretas sobre los bots (232 publicaciones, mediana de sospecha 82.6), los hashtags dominantes del caso, las tres marcas patrocinadoras involucradas, o la publicación más confiable del dataset. ¿Por dónde empezamos?"
   ]
 }
