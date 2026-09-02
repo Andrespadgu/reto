@@ -139,6 +139,48 @@
     /* EMPTY STATE */
     .empty { color:var(--slate); text-align:center; padding:28px 0; font-size:.88rem; }
 
+    /* FRAMING DISCLAIMER */
+    #framing { background:#fff; border-radius:var(--r); padding:14px 20px; margin-bottom:18px; border-left:4px solid #6366f1; box-shadow:var(--sh); display:flex; align-items:flex-start; gap:12px; }
+    #framing .fi { font-size:1.4rem; line-height:1; flex-shrink:0; margin-top:1px; }
+    #framing p { font-size:.875rem; color:var(--navy2); line-height:1.55; }
+    #framing strong { color:#4f46e5; }
+
+    /* RECOMENDACIÓN OPERATIVA */
+    #rec-op { background:#fff; border-radius:var(--r); box-shadow:var(--sh); padding:18px 22px; margin-bottom:18px; }
+    .rec-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px; }
+    .rec-step { border-radius:10px; padding:14px 16px; }
+    .rec-step.imm  { background:#fef3c7; border:1px solid #fcd34d; }
+    .rec-step.rev  { background:#eff6ff; border:1px solid #bfdbfe; }
+    .rec-step.con  { background:#f0fdf4; border:1px solid #bbf7d0; }
+    .rec-step-n  { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px; }
+    .rec-step.imm .rec-step-n { color:#92400e; }
+    .rec-step.rev .rec-step-n { color:#1d4ed8; }
+    .rec-step.con .rec-step-n { color:#15803d; }
+    .rec-step p { font-size:.84rem; line-height:1.5; color:var(--navy); }
+
+    /* 3 EJEMPLOS */
+    #ejemplos { background:#fff; border-radius:var(--r); box-shadow:var(--sh); padding:18px 22px; margin-bottom:14px; }
+    .ej-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px; }
+    .ej-card { border-radius:10px; padding:14px 16px; border:1px solid; }
+    .ej-card.alto  { border-color:#fca5a5; background:#fef2f2; }
+    .ej-card.medio { border-color:#fdba74; background:#fff7ed; }
+    .ej-card.bajo  { border-color:#86efac; background:#f0fdf4; }
+    .ej-tag  { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px; }
+    .ej-card.alto  .ej-tag { color:var(--R); }
+    .ej-card.medio .ej-tag { color:#c2410c; }
+    .ej-card.bajo  .ej-tag { color:var(--G); }
+    .ej-score { font-size:1.6rem; font-weight:900; margin-bottom:4px; }
+    .ej-card.alto  .ej-score { color:var(--R); }
+    .ej-card.medio .ej-score { color:var(--O); }
+    .ej-card.bajo  .ej-score { color:var(--G); }
+    .ej-handle { font-size:.82rem; font-weight:700; margin-bottom:6px; color:var(--navy); }
+    .ej-text { font-size:.78rem; color:var(--slate); font-style:italic; margin-bottom:8px; line-height:1.4; }
+    .ej-why  { font-size:.78rem; line-height:1.5; color:var(--navy2); }
+    .ej-why b { color:var(--navy); }
+
+    /* ANOTACIÓN PICO */
+    #peak-note { background:#fef9c3; border:1px solid #fbbf24; border-radius:8px; padding:9px 14px; margin-top:10px; font-size:.82rem; color:#78350f; display:flex; gap:8px; align-items:flex-start; }
+
     @media(max-width:860px){
       .dgrid,.row2,.row2b { grid-template-columns:1fr; }
       #cpanel { width:calc(100vw - 28px); right:14px; }
