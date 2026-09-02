@@ -12,6 +12,7 @@
       --R: #dc2626; --R2: #fef2f2;
       --O: #ea580c; --O2: #fff7ed;
       --G: #16a34a; --G2: #f0fdf4;
+      --purple: #7c3aed; --purple2: #f5f3ff;
       --navy: #0f172a; --navy2: #1e293b;
       --slate: #64748b; --light: #f8fafc;
       --border: #e2e8f0;
@@ -24,6 +25,7 @@
     header { background:var(--navy); color:#f1f5f9; padding:13px 28px; display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.4); }
     .logo { font-size:1.2rem; font-weight:800; letter-spacing:-.5px; }
     .logo span { color:#f87171; }
+    .logo-sub { font-size:.7rem; color:#94a3b8; font-weight:400; letter-spacing:.2px; margin-top:1px; }
     .hcontrols { margin-left:auto; display:flex; align-items:center; gap:10px; }
     #caso-select { background:var(--navy2); color:#f1f5f9; border:1px solid #334155; border-radius:8px; padding:6px 11px; font-size:.88rem; cursor:pointer; }
     #refresh-btn { background:#1d4ed8; color:#fff; border:none; border-radius:8px; padding:7px 16px; font-size:.88rem; font-weight:700; cursor:pointer; }
@@ -45,18 +47,23 @@
     #notice.err  { background:#fef2f2; border:1px solid #fca5a5; }
     #notice.ok   { background:#f0fdf4; border:1px solid #86efac; }
 
-    /* VEREDICTO */
-    #banner { border-radius:var(--r); padding:22px 28px; margin-bottom:20px; display:flex; align-items:center; gap:20px; box-shadow:var(--sh); transition:background .4s; }
+    /* VEREDICTO / BANNER */
+    #banner { border-radius:var(--r); padding:22px 28px; margin-bottom:20px; display:flex; align-items:flex-start; gap:20px; box-shadow:var(--sh); transition:background .4s; }
     #banner.cancelar    { background:#dc2626; }
     #banner.bajar_video { background:#ea580c; }
     #banner.mantener    { background:#16a34a; }
+    #banner.dividida    { background:#7c3aed; }
     #banner.loading     { background:#334155; }
-    .b-icon { font-size:2.6rem; line-height:1; }
+    .b-icon { font-size:2.6rem; line-height:1; flex-shrink:0; margin-top:2px; }
     .b-txt  { color:#fff; flex:1; }
     .b-tag  { font-size:.72rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; opacity:.85; margin-bottom:3px; }
     .b-dec  { font-size:1.9rem; font-weight:900; line-height:1.1; }
-    .b-sub  { font-size:.88rem; opacity:.88; margin-top:3px; }
-    .b-count { background:rgba(255,255,255,.18); color:#fff; border-radius:999px; padding:6px 18px; font-size:1.5rem; font-weight:800; white-space:nowrap; }
+    .b-certeza { font-size:.78rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; opacity:.9; margin-top:4px; margin-bottom:2px; }
+    .b-sub  { font-size:.88rem; opacity:.88; margin-top:3px; line-height:1.5; }
+    .b-rec  { font-size:.82rem; margin-top:8px; background:rgba(255,255,255,.15); border-radius:8px; padding:8px 12px; line-height:1.5; }
+    .b-rec strong { font-weight:700; }
+    .b-disc { font-size:.73rem; opacity:.72; margin-top:6px; font-style:italic; }
+    .b-count { background:rgba(255,255,255,.18); color:#fff; border-radius:999px; padding:6px 18px; font-size:1.5rem; font-weight:800; white-space:nowrap; align-self:center; flex-shrink:0; }
 
     /* CARDS */
     .dgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:18px; }
@@ -75,6 +82,25 @@
     .dcard.cancelar .dfill    { background:var(--R); }
     .dcard.bajar_video .dfill { background:var(--O); }
     .dcard.mantener .dfill    { background:var(--G); }
+
+    /* SEÑALES CLAVE */
+    .signals-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:18px; }
+    .signal-card { background:#fff; border-radius:var(--r); padding:14px 16px; box-shadow:var(--sh); border-left:4px solid; display:flex; flex-direction:column; gap:4px; }
+    .signal-card.red    { border-color:#dc2626; }
+    .signal-card.orange { border-color:#ea580c; }
+    .signal-card.amber  { border-color:#d97706; }
+    .signal-card.blue   { border-color:#2563eb; }
+    .signal-card.green  { border-color:#16a34a; }
+    .sig-icon { font-size:1.6rem; line-height:1; margin-bottom:2px; }
+    .sig-val  { font-size:1.05rem; font-weight:800; color:var(--navy); line-height:1.2; }
+    .sig-label { font-size:.7rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; margin-top:2px; }
+    .sig-interp { font-size:.72rem; color:var(--slate); line-height:1.4; margin-top:2px; }
+
+    /* HALLAZGOS CLAVE */
+    #hallazgos { background:#fff; border-radius:var(--r); box-shadow:var(--sh); padding:18px 22px; margin-bottom:18px; }
+    .hallazgo-list { list-style:none; display:flex; flex-direction:column; gap:9px; margin-top:12px; }
+    .hallazgo-list li { font-size:.86rem; line-height:1.55; color:var(--navy2); display:flex; gap:10px; align-items:flex-start; }
+    .hallazgo-list li .hi { flex-shrink:0; font-size:1rem; margin-top:1px; }
 
     /* SECTION CARDS */
     .card { background:#fff; border-radius:var(--r); box-shadow:var(--sh); padding:18px 22px; overflow:hidden; }
@@ -106,20 +132,27 @@
     .sh { color:var(--R); font-weight:700; }
     .sm { color:var(--O); font-weight:700; }
     .sl { color:var(--G); font-weight:700; }
-    .trunc { max-width:240px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--slate); font-style:italic; font-size:.78rem; }
+    .trunc { max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--slate); font-style:italic; font-size:.78rem; }
 
-    /* SEMÁFORO */
+    /* SEÑALES ACTIVAS (iconos en tabla pubs) */
+    .sig-pills { display:flex; gap:3px; flex-wrap:wrap; }
+    .sig-pill  { font-size:.9rem; line-height:1; cursor:default; }
+
+    /* MOTIVO PRINCIPAL (tabla cuentas) */
+    .motivo { font-size:.75rem; color:var(--slate); font-style:italic; }
+
+    /* SEMAFORO */
     .sfitem { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
     .sfdot  { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
     .sflbl  { font-size:.82rem; color:var(--slate); min-width:140px; }
     .sfbar  { flex:1; height:9px; background:var(--border); border-radius:999px; overflow:hidden; }
     .sfill  { height:100%; border-radius:999px; transition:width .6s; }
-    .sfcnt  { font-size:.82rem; font-weight:700; min-width:48px; text-align:right; }
+    .sfcnt  { font-size:.82rem; font-weight:700; min-width:120px; text-align:right; }
 
     /* CHATBOT */
     #ctrig { position:fixed; bottom:22px; right:22px; background:var(--navy); color:#fff; border:none; border-radius:999px; padding:13px 20px; font-size:.92rem; font-weight:700; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.3); z-index:200; display:flex; align-items:center; gap:7px; transition:transform .2s; }
     #ctrig:hover { transform:translateY(-2px); }
-    #cpanel { position:fixed; bottom:78px; right:22px; width:370px; max-height:510px; background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:0 8px 32px rgba(0,0,0,.15); display:none; flex-direction:column; z-index:200; overflow:hidden; }
+    #cpanel { position:fixed; bottom:78px; right:22px; width:380px; max-height:540px; background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:0 8px 32px rgba(0,0,0,.15); display:none; flex-direction:column; z-index:200; overflow:hidden; }
     #cpanel.open { display:flex; }
     .chdr { background:var(--navy); color:#f1f5f9; padding:13px 16px; font-weight:700; font-size:.92rem; display:flex; justify-content:space-between; align-items:center; }
     .cclose { background:none; border:none; color:#94a3b8; font-size:1.05rem; cursor:pointer; }
@@ -145,7 +178,7 @@
     #framing p { font-size:.875rem; color:var(--navy2); line-height:1.55; }
     #framing strong { color:#4f46e5; }
 
-    /* RECOMENDACIÓN OPERATIVA */
+    /* RECOMENDACION OPERATIVA */
     #rec-op { background:#fff; border-radius:var(--r); box-shadow:var(--sh); padding:18px 22px; margin-bottom:18px; }
     .rec-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px; }
     .rec-step { border-radius:10px; padding:14px 16px; }
@@ -178,19 +211,25 @@
     .ej-why  { font-size:.78rem; line-height:1.5; color:var(--navy2); }
     .ej-why b { color:var(--navy); }
 
-    /* ANOTACIÓN PICO */
+    /* ANOTACION PICO */
     #peak-note { background:#fef9c3; border:1px solid #fbbf24; border-radius:8px; padding:9px 14px; margin-top:10px; font-size:.82rem; color:#78350f; display:flex; gap:8px; align-items:flex-start; }
 
     @media(max-width:860px){
-      .dgrid,.row2,.row2b { grid-template-columns:1fr; }
+      .dgrid,.row2,.row2b,.signals-grid { grid-template-columns:1fr; }
       #cpanel { width:calc(100vw - 28px); right:14px; }
+    }
+    @media(min-width:600px) and (max-width:860px){
+      .signals-grid { grid-template-columns:repeat(2,1fr); }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">SISTEMA <span>CANCELADO</span></div>
+  <div>
+    <div class="logo">SISTEMA <span>CANCELADO</span></div>
+    <div class="logo-sub">Análisis de señales de manipulación digital &middot; No determina verdad absoluta</div>
+  </div>
   <div id="db-indicator">
     <div class="db-dot" id="dbdot"></div>
     <span id="dblabel">Conectando…</span>
@@ -206,12 +245,15 @@
   <div id="notice"></div>
 
   <!-- VEREDICTO -->
-  <div id="banner" class="cancelar">
-    <div class="b-icon" id="bicono">⛔</div>
+  <div id="banner" class="dividida">
+    <div class="b-icon" id="bicono">⚖️</div>
     <div class="b-txt">
       <div class="b-tag">Decisión final del caso</div>
-      <div class="b-dec" id="bdec">CANCELAR</div>
-      <div class="b-sub" id="bsub">38.1 % de las publicaciones presentan evidencia suficiente. Se recomienda acción contractual.</div>
+      <div class="b-dec" id="bdec">EVIDENCIA DIVIDIDA</div>
+      <div class="b-certeza" id="bcerteza">Baja certeza — zona gris</div>
+      <div class="b-sub" id="bsub">Cancelar (38.1%) vs Mantener (36.4%): diferencia de solo 1.7 puntos porcentuales. No hay consenso claro en el dataset.</div>
+      <div class="b-rec" id="brec"><strong>Recomendación operativa:</strong> Bajar el video temporalmente. Activar revisión humana prioritaria. No tomar acciones contractuales hasta validar evidencia original en fuente.</div>
+      <div class="b-disc">Este sistema prioriza evidencia y señales de riesgo. No determina verdad absoluta.</div>
     </div>
     <div class="b-count" id="bcnt">3.210 publicaciones analizadas</div>
   </div>
@@ -221,7 +263,7 @@
     <div class="dcard cancelar">
       <div class="dlabel">Cancelar</div>
       <div class="dpct" id="pct-c">38.1%</div>
-      <div class="dcnt" id="cnt-c">1.224 publicaciones</div>
+      <div class="dcnt" id="cnt-c">1.223 publicaciones</div>
       <div class="dbar"><div class="dfill" id="bar-c" style="width:38.1%"></div></div>
     </div>
     <div class="dcard bajar_video">
@@ -233,9 +275,55 @@
     <div class="dcard mantener">
       <div class="dlabel">Mantener</div>
       <div class="dpct" id="pct-m">36.4%</div>
-      <div class="dcnt" id="cnt-m">1.167 publicaciones</div>
+      <div class="dcnt" id="cnt-m">1.168 publicaciones</div>
       <div class="dbar"><div class="dfill" id="bar-m" style="width:36.4%"></div></div>
     </div>
+  </div>
+
+  <!-- SEÑALES CLAVE -->
+  <div class="signals-grid">
+    <div class="signal-card red">
+      <div class="sig-icon">🤖</div>
+      <div class="sig-val">232 pubs · 7.2%</div>
+      <div class="sig-label" style="color:#dc2626;">Bots detectados</div>
+      <div class="sig-interp">100% recomiendan cancelar — mediana sospecha 82.6</div>
+    </div>
+    <div class="signal-card orange">
+      <div class="sig-icon">♻️</div>
+      <div class="sig-val">190 pubs · 5.9%</div>
+      <div class="sig-label" style="color:#ea580c;">Contenido reciclado</div>
+      <div class="sig-interp">Manipulación directa detectada — textos de escándalo 2023</div>
+    </div>
+    <div class="signal-card amber">
+      <div class="sig-icon">⏰</div>
+      <div class="sig-val">38% del total en 1h</div>
+      <div class="sig-label" style="color:#d97706;">Pico 3:00 AM</div>
+      <div class="sig-interp">Posible amplificación coordinada — no orgánica</div>
+    </div>
+    <div class="signal-card blue">
+      <div class="sig-icon">🔗</div>
+      <div class="sig-val">58.8% de pubs</div>
+      <div class="sig-label" style="color:#2563eb;">Sin corroboración</div>
+      <div class="sig-interp">Mayoría de publicaciones sin respaldo independiente</div>
+    </div>
+    <div class="signal-card green">
+      <div class="sig-icon">✅</div>
+      <div class="sig-val">93.8% en "mantener"</div>
+      <div class="sig-label" style="color:#16a34a;">Fuentes verificadas</div>
+      <div class="sig-interp">Cuentas verificadas no alertan riesgo real</div>
+    </div>
+  </div>
+
+  <!-- HALLAZGOS CLAVE -->
+  <div id="hallazgos">
+    <div class="stitle">Hallazgos clave del análisis</div>
+    <ul class="hallazgo-list">
+      <li><span class="hi">🔴</span><span><strong>Alta actividad de bots:</strong> 232 cuentas marcadas como Bot_Sospechoso generaron el 100% de su contenido con Índice de Sospecha superior a 80. Son la señal más clara y verificable del dataset.</span></li>
+      <li><span class="hi">🟡</span><span><strong>Pico de 3 AM:</strong> el 38% de las publicaciones surgió en una sola hora, patrón consistente con amplificación coordinada — no con actividad orgánica de usuarios reales.</span></li>
+      <li><span class="hi">🔴</span><span><strong>Contenido reciclado:</strong> 190 publicaciones son texto idéntico o similar a un escándalo de 2023 con otro creador. Si se confirma, es evidencia directa de fabricación.</span></li>
+      <li><span class="hi">🟢</span><span><strong>Cuentas verificadas tranquilas:</strong> el 93.8% de publicaciones de perfiles Verificados recomienda "mantener". No hay señal de alerta real en fuentes primarias.</span></li>
+      <li><span class="hi">⚖️</span><span><strong>Decisión dividida:</strong> la diferencia entre "cancelar" y "mantener" es de solo 1.7 puntos porcentuales — no hay consenso claro. La decisión requiere validación humana antes de acciones contractuales.</span></li>
+    </ul>
   </div>
 
   <!-- GRÁFICAS -->
@@ -243,6 +331,10 @@
     <div class="card">
       <div class="stitle">Publicaciones por hora del evento <span class="src-badge" id="badge-tl">análisis</span></div>
       <canvas id="ch-tl" height="200"></canvas>
+      <div id="peak-note">
+        <span>⚠️</span>
+        <span><strong>Pico a las 3:00 AM:</strong> el 38% del total de publicaciones surgió en 60 minutos. Este patrón es estadísticamente anómalo y consistente con amplificación coordinada, no con actividad orgánica.</span>
+      </div>
     </div>
     <div class="card">
       <div class="stitle">Distribución por plataforma <span class="src-badge" id="badge-pl">análisis</span></div>
@@ -253,13 +345,13 @@
   <!-- SEMÁFORO + CUENTAS -->
   <div class="row2b">
     <div class="card">
-      <div class="stitle">Semáforo de confiabilidad <span class="src-badge" id="badge-sf">análisis</span></div>
+      <div class="stitle">Semáforo de Score de Confiabilidad <span class="src-badge" id="badge-sf">análisis</span></div>
       <div id="semaforo"></div>
     </div>
     <div class="card" style="overflow-x:auto">
       <div class="stitle">Top 10 cuentas más sospechosas <span class="src-badge" id="badge-cu">análisis</span></div>
       <table class="tbl">
-        <thead><tr><th>Usuario</th><th>Perfil</th><th>Sospecha prom.</th><th>Decisión</th></tr></thead>
+        <thead><tr><th>Usuario</th><th>Perfil</th><th>Índice de Sospecha prom.</th><th>Decisión</th><th>Motivo principal</th></tr></thead>
         <tbody id="tb-cuentas"></tbody>
       </table>
     </div>
@@ -269,7 +361,7 @@
   <div class="card" style="overflow-x:auto; margin-bottom:14px">
     <div class="stitle">Top 10 publicaciones más sospechosas <span class="src-badge" id="badge-pu">análisis</span></div>
     <table class="tbl">
-      <thead><tr><th>ID</th><th>Usuario</th><th>Plataforma</th><th>Perfil</th><th>Texto</th><th>Sospecha</th><th>Confiab.</th><th>Decisión</th></tr></thead>
+      <thead><tr><th>ID</th><th>Usuario</th><th>Plataforma</th><th>Perfil</th><th>Texto</th><th>Índice de Sospecha</th><th>Score de Confiabilidad</th><th>Decisión</th><th>Señales activas</th></tr></thead>
       <tbody id="tb-pubs"></tbody>
     </table>
   </div>
@@ -282,9 +374,12 @@
   <div id="cmsgs"></div>
   <div class="chips">
     <span class="chip" onclick="chip('¿Cómo funciona el sistema?')">¿Cómo funciona?</span>
-    <span class="chip" onclick="chip('¿Qué es el Indice_Sospecha?')">Índice Sospecha</span>
-    <span class="chip" onclick="chip('¿Por qué recomienda cancelar?')">¿Por qué cancelar?</span>
+    <span class="chip" onclick="chip('¿Qué es el Indice_Sospecha?')">Índice de Sospecha</span>
+    <span class="chip" onclick="chip('¿Por qué evidencia dividida?')">¿Por qué evidencia dividida?</span>
     <span class="chip" onclick="chip('¿Cuántos bots hay?')">Bots detectados</span>
+    <span class="chip" onclick="chip('¿Qué señala el pico de las 3 AM?')">Pico 3 AM</span>
+    <span class="chip" onclick="chip('¿Qué es contenido reciclado?')">Contenido reciclado</span>
+    <span class="chip" onclick="chip('¿Cuál es la recomendación concreta?')">Recomendación concreta</span>
     <span class="chip" onclick="chip('¿Por qué no Machine Learning?')">¿Sin ML?</span>
   </div>
   <div class="cinput-row">
@@ -323,7 +418,7 @@ const STATIC = {
   plataformas: [
     { plataforma:'X',              n_publicaciones:1442, n_cancelar:712, n_bajar_video:344, n_mantener:386 },
     { plataforma:'TikTok',         n_publicaciones:894,  n_cancelar:342, n_bajar_video:220, n_mantener:332 },
-    { plataforma:'Instagram',      n_publicaciones:667,  n_publicaciones:667, n_cancelar:134, n_bajar_video:201, n_mantener:332 },
+    { plataforma:'Instagram',      n_publicaciones:667,  n_cancelar:134, n_bajar_video:201, n_mantener:332 },
     { plataforma:'Foro anónimo',   n_publicaciones:207,  n_cancelar:35,  n_bajar_video:54,  n_mantener:118 },
   ],
   timeline: [
@@ -355,16 +450,16 @@ const STATIC = {
     { usuario_handle:'@fast_spread_01',   perfil_usuario:'Bot_Sospechoso', sospecha_promedio:51.9, n_cancelar:2,  n_bajar_video:0 },
   ],
   pubs: [
-    { id_publicacion:2440, usuario_handle:'@despiertaya_760', plataforma:'X', perfil_usuario:'Bot_Sospechoso', texto_truncado:'#CancelenAKai — KAI ES CULPABLE', indice_sospecha:85.9, score_confiabilidad:8.2, decision:'cancelar' },
-    { id_publicacion:1877, usuario_handle:'@alerta_fake01',   plataforma:'X', perfil_usuario:'Bot_Sospechoso', texto_truncado:'PRUEBA DEL FRAUDE: video confirma que Kai amanó el sorteo', indice_sospecha:83.4, score_confiabilidad:9.1, decision:'cancelar' },
-    { id_publicacion:3101, usuario_handle:'@newuser_2024xz',  plataforma:'TikTok', perfil_usuario:'Cuenta_Nueva', texto_truncado:'Mi amigo estuvo ahí, confirma que el sorteo fue arreglado', indice_sospecha:78.2, score_confiabilidad:12.4, decision:'cancelar' },
-    { id_publicacion:667,  usuario_handle:'@void_account_99', plataforma:'X', perfil_usuario:'Bot_Sospechoso', texto_truncado:'#CancelenAKai #KaiMentiroso — COMPARTE ESTO', indice_sospecha:76.1, score_confiabilidad:7.8, decision:'cancelar' },
-    { id_publicacion:2209, usuario_handle:'@anon_foro_33',    plataforma:'Foro anónimo', perfil_usuario:'Anónimo', texto_truncado:'Fuente interna dice que el ganador fue seleccionado antes del live', indice_sospecha:71.3, score_confiabilidad:18.6, decision:'cancelar' },
-    { id_publicacion:412,  usuario_handle:'@nuevacuenta_hoy', plataforma:'Instagram', perfil_usuario:'Cuenta_Nueva', texto_truncado:'Transcripción de audio: se escucha cómo coordinan el fraude', indice_sospecha:68.9, score_confiabilidad:11.2, decision:'cancelar' },
-    { id_publicacion:1590, usuario_handle:'@shadow_post_x',   plataforma:'X', perfil_usuario:'Bot_Sospechoso', texto_truncado:'#FueraKai — el clip prueba todo. RT masivo', indice_sospecha:65.4, score_confiabilidad:9.9, decision:'cancelar' },
-    { id_publicacion:889,  usuario_handle:'@tempuser_8821',   plataforma:'TikTok', perfil_usuario:'Cuenta_Nueva', texto_truncado:'Alguien del equipo de Kai me dijo que es todo armado', indice_sospecha:62.1, score_confiabilidad:14.3, decision:'cancelar' },
-    { id_publicacion:2778, usuario_handle:'@anon_rumors_22',  plataforma:'Foro anónimo', perfil_usuario:'Anónimo', texto_truncado:'El código del sorteo fue modificado 2 horas antes. Pantallazos aquí', indice_sospecha:59.8, score_confiabilidad:21.0, decision:'cancelar' },
-    { id_publicacion:304,  usuario_handle:'@fast_spread_01',  plataforma:'X', perfil_usuario:'Bot_Sospechoso', texto_truncado:'VIRAL: Kai admite en privado que el sorteo era falso. ¡Compartan!', indice_sospecha:57.2, score_confiabilidad:8.7, decision:'cancelar' },
+    { id_publicacion:2440, usuario_handle:'@despiertaya_760', plataforma:'X',            perfil_usuario:'Bot_Sospechoso', texto_truncado:'#CancelenAKai — KAI ES CULPABLE',                                    indice_sospecha:85.9, score_confiabilidad:8.2,  decision:'cancelar', contenido_reciclado:true,  velocidad_viral:true,  corroboraciones:0 },
+    { id_publicacion:1877, usuario_handle:'@alerta_fake01',   plataforma:'X',            perfil_usuario:'Bot_Sospechoso', texto_truncado:'PRUEBA DEL FRAUDE: video confirma que Kai amanó el sorteo',         indice_sospecha:83.4, score_confiabilidad:9.1,  decision:'cancelar', contenido_reciclado:true,  velocidad_viral:true,  corroboraciones:0 },
+    { id_publicacion:3101, usuario_handle:'@newuser_2024xz',  plataforma:'TikTok',       perfil_usuario:'Cuenta_Nueva',   texto_truncado:'Mi amigo estuvo ahí, confirma que el sorteo fue arreglado',        indice_sospecha:78.2, score_confiabilidad:12.4, decision:'cancelar', contenido_reciclado:false, velocidad_viral:false, corroboraciones:0 },
+    { id_publicacion:667,  usuario_handle:'@void_account_99', plataforma:'X',            perfil_usuario:'Bot_Sospechoso', texto_truncado:'#CancelenAKai #KaiMentiroso — COMPARTE ESTO',                      indice_sospecha:76.1, score_confiabilidad:7.8,  decision:'cancelar', contenido_reciclado:true,  velocidad_viral:true,  corroboraciones:0 },
+    { id_publicacion:2209, usuario_handle:'@anon_foro_33',    plataforma:'Foro anónimo', perfil_usuario:'Anónimo',        texto_truncado:'Fuente interna dice que el ganador fue seleccionado antes del live', indice_sospecha:71.3, score_confiabilidad:18.6, decision:'cancelar', contenido_reciclado:false, velocidad_viral:false, corroboraciones:0 },
+    { id_publicacion:412,  usuario_handle:'@nuevacuenta_hoy', plataforma:'Instagram',    perfil_usuario:'Cuenta_Nueva',   texto_truncado:'Transcripción de audio: se escucha cómo coordinan el fraude',      indice_sospecha:68.9, score_confiabilidad:11.2, decision:'cancelar', contenido_reciclado:false, velocidad_viral:false, corroboraciones:0 },
+    { id_publicacion:1590, usuario_handle:'@shadow_post_x',   plataforma:'X',            perfil_usuario:'Bot_Sospechoso', texto_truncado:'#FueraKai — el clip prueba todo. RT masivo',                       indice_sospecha:65.4, score_confiabilidad:9.9,  decision:'cancelar', contenido_reciclado:false, velocidad_viral:true,  corroboraciones:0 },
+    { id_publicacion:889,  usuario_handle:'@tempuser_8821',   plataforma:'TikTok',       perfil_usuario:'Cuenta_Nueva',   texto_truncado:'Alguien del equipo de Kai me dijo que es todo armado',             indice_sospecha:62.1, score_confiabilidad:14.3, decision:'cancelar', contenido_reciclado:false, velocidad_viral:false, corroboraciones:0 },
+    { id_publicacion:2778, usuario_handle:'@anon_rumors_22',  plataforma:'Foro anónimo', perfil_usuario:'Anónimo',        texto_truncado:'El código del sorteo fue modificado 2 horas antes. Pantallazos',   indice_sospecha:59.8, score_confiabilidad:21.0, decision:'cancelar', contenido_reciclado:false, velocidad_viral:false, corroboraciones:0 },
+    { id_publicacion:304,  usuario_handle:'@fast_spread_01',  plataforma:'X',            perfil_usuario:'Bot_Sospechoso', texto_truncado:'VIRAL: Kai admite en privado que el sorteo era falso. ¡Compartan!', indice_sospecha:57.2, score_confiabilidad:8.7,  decision:'cancelar', contenido_reciclado:true,  velocidad_viral:true,  corroboraciones:0 },
   ],
 };
 
@@ -380,7 +475,6 @@ function setDbStatus(live, msg) {
   dbLive = live;
   $('dbdot').className   = 'db-dot ' + (live ? 'live' : 'err');
   $('dblabel').textContent = msg;
-  // actualizar badges de fuente
   document.querySelectorAll('.src-badge').forEach(b => {
     b.textContent = live ? 'en vivo' : 'análisis';
     b.className   = 'src-badge ' + (live ? 'live' : '');
@@ -396,14 +490,14 @@ function setNotice(tipo, msg) {
 function clearNotice() { $('notice').style.display = 'none'; }
 
 /* ══════════════════════════════════════════════════════════════
-   RENDER DECISIONES
+   RENDER DECISIONES — con lógica de certeza y spread
 ══════════════════════════════════════════════════════════════ */
 function renderDecisiones(data) {
   const m = {};
   data.forEach(r => { m[r.decision] = r; });
-  const c = m.cancelar    || { n_publicaciones:0, porcentaje:0 };
-  const b = m.bajar_video || { n_publicaciones:0, porcentaje:0 };
-  const mn = m.mantener   || { n_publicaciones:0, porcentaje:0 };
+  const c  = m.cancelar    || { n_publicaciones:0, porcentaje:0 };
+  const b  = m.bajar_video || { n_publicaciones:0, porcentaje:0 };
+  const mn = m.mantener    || { n_publicaciones:0, porcentaje:0 };
 
   $('pct-c').textContent = (+c.porcentaje).toFixed(1) + '%';
   $('cnt-c').textContent = (+c.n_publicaciones).toLocaleString('es-CO') + ' publicaciones';
@@ -418,25 +512,58 @@ function renderDecisiones(data) {
   $('bar-m').style.width = mn.porcentaje + '%';
 
   const total = (+c.n_publicaciones) + (+b.n_publicaciones) + (+mn.n_publicaciones);
-  const maxPct = Math.max(+c.porcentaje, +b.porcentaje, +mn.porcentaje);
-  let dec, icono, sub, cls;
-  if (maxPct === +c.porcentaje) {
-    dec='CANCELAR'; icono='⛔'; cls='cancelar';
-    sub=`${(+c.porcentaje).toFixed(1)}% de las publicaciones presentan evidencia suficiente. Se recomienda acción contractual.`;
-  } else if (maxPct === +b.porcentaje) {
-    dec='BAJAR EL VIDEO'; icono='⚠️'; cls='bajar_video';
-    sub=`${(+b.porcentaje).toFixed(1)}% en zona gris. Retirar el contenido sin acciones legales.`;
-  } else {
-    dec='MANTENER'; icono='✅'; cls='mantener';
-    sub=`${(+mn.porcentaje).toFixed(1)}% no muestra evidencia accionable. No se recomienda actuar.`;
-  }
+
+  // Calcular spread: diferencia entre el mayor y el segundo mayor
+  const pcts = [
+    { key:'cancelar',    pct:+c.porcentaje },
+    { key:'bajar_video', pct:+b.porcentaje },
+    { key:'mantener',    pct:+mn.porcentaje },
+  ].sort((a, bb) => bb.pct - a.pct);
+
+  const winner = pcts[0];
+  const spread = pcts[0].pct - pcts[1].pct;
 
   const banner = $('banner');
-  banner.className = cls;
-  $('bicono').textContent = icono;
-  $('bdec').textContent   = dec;
-  $('bsub').textContent   = sub;
-  $('bcnt').textContent   = total.toLocaleString('es-CO') + ' publicaciones analizadas';
+  let dec, icono, cls, certeza, sub, rec;
+
+  if (spread < 5) {
+    // Zona gris — evidencia dividida
+    cls     = 'dividida';
+    icono   = '⚖️';
+    dec     = 'EVIDENCIA DIVIDIDA';
+    certeza = 'Baja certeza — zona gris';
+    sub     = 'Cancelar (' + (+c.porcentaje).toFixed(1) + '%) vs Mantener (' + (+mn.porcentaje).toFixed(1) + '%): diferencia de solo ' + spread.toFixed(1) + ' puntos porcentuales. No hay consenso claro en el dataset.';
+    rec     = 'Bajar el video temporalmente. Activar revisión humana prioritaria. No tomar acciones contractuales hasta validar evidencia original en fuente.';
+  } else {
+    if (winner.key === 'cancelar') {
+      cls   = 'cancelar';
+      icono = '⛔';
+      dec   = 'CANCELAR';
+      sub   = (+c.porcentaje).toFixed(1) + '% de las publicaciones presentan señales de sospecha alta. Se recomienda acción contractual.';
+      rec   = 'Proceder con notificación a PulsoTech, UrbanKrew y NovaVolt. Documentar las 232 publicaciones de bots y las 190 de contenido reciclado como evidencia central.';
+    } else if (winner.key === 'bajar_video') {
+      cls   = 'bajar_video';
+      icono = '⚠️';
+      dec   = 'BAJAR EL VIDEO';
+      sub   = (+b.porcentaje).toFixed(1) + '% en zona gris. Retirar el contenido sin acciones contractuales.';
+      rec   = 'Retirar el video de circulación y dejar en revisión. No tomar acciones legales hasta tener más corroboraciones independientes.';
+    } else {
+      cls   = 'mantener';
+      icono = '✅';
+      dec   = 'MANTENER';
+      sub   = (+mn.porcentaje).toFixed(1) + '% no muestra evidencia accionable. Las fuentes verificadas no alertan riesgo real.';
+      rec   = 'No tomar acciones. Monitorear el volumen de bots y contenido reciclado en las próximas horas.';
+    }
+    certeza = spread < 15 ? 'Certeza moderada' : 'Alta certeza';
+  }
+
+  banner.className      = cls;
+  $('bicono').textContent   = icono;
+  $('bdec').textContent     = dec;
+  $('bcerteza').textContent = certeza;
+  $('bsub').textContent     = sub;
+  $('brec').innerHTML       = '<strong>Recomendación operativa:</strong> ' + rec;
+  $('bcnt').textContent     = total.toLocaleString('es-CO') + ' publicaciones analizadas';
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -501,58 +628,92 @@ const SF_COLORS = {
 };
 
 function renderSemaforo(data) {
+  const totalN = data.reduce((acc, r) => acc + +(r.n_publicaciones || 0), 0);
   $('semaforo').innerHTML = data.map(r => {
     const col = SF_COLORS[r.rango_confiabilidad] || { fill:'#94a3b8', dot:'#64748b' };
     const pct = +(r.porcentaje || 0);
+    const n   = +(r.n_publicaciones || 0);
+    const pctLabel = totalN > 0 ? (n / totalN * 100).toFixed(1) : pct.toFixed(1);
     return `<div class="sfitem">
       <div class="sfdot" style="background:${col.dot}"></div>
       <div class="sflbl">${r.rango_confiabilidad}</div>
       <div class="sfbar"><div class="sfill" style="width:${pct}%;background:${col.fill}"></div></div>
-      <div class="sfcnt">${(+(r.n_publicaciones||0)).toLocaleString('es-CO')}</div>
+      <div class="sfcnt">${n.toLocaleString('es-CO')} pubs (${pctLabel}%)</div>
     </div>`;
   }).join('');
 }
 
-function bPerfil(p='') {
+function bPerfil(p) {
+  p = p || '';
   const l = p.toLowerCase();
-  if (l.includes('bot'))       return `<span class="badge bot">Bot</span>`;
+  if (l.includes('bot'))                      return `<span class="badge bot">Bot</span>`;
   if (l.includes('nueva')||l.includes('new')) return `<span class="badge new">Nueva</span>`;
-  if (l.includes('verif'))     return `<span class="badge ver">Verificado</span>`;
-  if (l.includes('fan'))       return `<span class="badge fan">Fan</span>`;
+  if (l.includes('verif'))                    return `<span class="badge ver">Verificado</span>`;
+  if (l.includes('fan'))                      return `<span class="badge fan">Fan</span>`;
   return `<span class="badge anon">${p||'—'}</span>`;
 }
-function bDec(d='') {
-  const m={cancelar:'Cancelar',bajar_video:'Bajar Video',mantener:'Mantener'};
+
+function bDec(d) {
+  d = d || '';
+  const m = { cancelar:'Cancelar', bajar_video:'Bajar Video', mantener:'Mantener' };
   return `<span class="badge ${d}">${m[d]||d||'—'}</span>`;
 }
-function cls(s){ return s>=50?'sh':s>=30?'sm':'sl'; }
+
+function clsScore(s) { return s >= 50 ? 'sh' : s >= 30 ? 'sm' : 'sl'; }
+
+function motivoPerfil(p) {
+  p = p || '';
+  const l = p.toLowerCase();
+  if (l.includes('bot'))   return 'Perfil automatizado detectado';
+  if (l.includes('nueva')) return 'Cuenta creada recientemente';
+  if (l.includes('anon'))  return 'Sin identidad verificable';
+  if (l.includes('verif')) return 'Cuenta verificada (menor riesgo)';
+  if (l.includes('fan'))   return 'Fan antiguo (menor riesgo)';
+  return '—';
+}
+
+function senalesActivas(r) {
+  const pills = [];
+  const p = (r.perfil_usuario || '').toLowerCase();
+  if (p.includes('bot'))                              pills.push({ icon:'🤖', label:'Bot_Sospechoso' });
+  if (p.includes('nueva') || p.includes('new'))       pills.push({ icon:'🆕', label:'Cuenta_Nueva' });
+  if (r.contenido_reciclado)                           pills.push({ icon:'♻️', label:'Contenido reciclado' });
+  if (r.velocidad_viral)                               pills.push({ icon:'⚡', label:'Velocidad viral alta' });
+  if (!r.corroboraciones || r.corroboraciones === 0)   pills.push({ icon:'❓', label:'Sin corroboración' });
+  if (pills.length === 0)                              pills.push({ icon:'❓', label:'Sin corroboración' });
+  return pills.map(function(pill) {
+    return '<span class="sig-pill" title="' + pill.label + '">' + pill.icon + '</span>';
+  }).join('');
+}
 
 function renderCuentas(data) {
   const tb = $('tb-cuentas');
-  if (!data || !data.length) { tb.innerHTML = `<tr><td colspan="4" class="empty">Sin datos</td></tr>`; return; }
+  if (!data || !data.length) { tb.innerHTML = `<tr><td colspan="5" class="empty">Sin datos</td></tr>`; return; }
   tb.innerHTML = data.slice(0,10).map(r => {
-    const dec = (+r.n_cancelar>0)?'cancelar':(+(r.n_bajar_video||0)>0)?'bajar_video':'mantener';
+    const dec = (+r.n_cancelar > 0) ? 'cancelar' : (+(r.n_bajar_video||0) > 0) ? 'bajar_video' : 'mantener';
     return `<tr>
       <td style="font-weight:600">${r.usuario_handle||'—'}</td>
       <td>${bPerfil(r.perfil_usuario)}</td>
-      <td class="${cls(+(r.sospecha_promedio||0))}">${(+(r.sospecha_promedio||0)).toFixed(1)}</td>
+      <td class="${clsScore(+(r.sospecha_promedio||0))}">${(+(r.sospecha_promedio||0)).toFixed(1)}</td>
       <td>${bDec(dec)}</td>
+      <td class="motivo">${motivoPerfil(r.perfil_usuario)}</td>
     </tr>`;
   }).join('');
 }
 
 function renderPubs(data) {
   const tb = $('tb-pubs');
-  if (!data || !data.length) { tb.innerHTML = `<tr><td colspan="8" class="empty">Sin datos</td></tr>`; return; }
+  if (!data || !data.length) { tb.innerHTML = `<tr><td colspan="9" class="empty">Sin datos</td></tr>`; return; }
   tb.innerHTML = data.map(r => `<tr>
     <td style="font-size:.75rem;color:var(--slate)">#${r.id_publicacion}</td>
     <td style="font-weight:600">${r.usuario_handle||'—'}</td>
     <td>${r.plataforma||'—'}</td>
     <td>${bPerfil(r.perfil_usuario)}</td>
     <td><div class="trunc" title="${(r.texto_truncado||'').replace(/"/g,'&quot;')}">${r.texto_truncado||'—'}</div></td>
-    <td class="${cls(+(r.indice_sospecha||0))}">${(+(r.indice_sospecha||0)).toFixed(1)}</td>
+    <td class="${clsScore(+(r.indice_sospecha||0))}">${(+(r.indice_sospecha||0)).toFixed(1)}</td>
     <td>${(+(r.score_confiabilidad||0)).toFixed(1)}</td>
     <td>${bDec(r.decision)}</td>
+    <td><div class="sig-pills">${senalesActivas(r)}</div></td>
   </tr>`).join('');
 }
 
@@ -640,9 +801,9 @@ async function cargarTodo() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   CATÁLOGO CHATBOT
+   CATÁLOGO CHATBOT (con nuevas intenciones)
 ══════════════════════════════════════════════════════════════ */
-const CAT = {"meta":{"cortes":{"umbral_mantener":30.0,"umbral_cancelar":50.0},"distribucion":{"mantener_pct":36.4,"bajar_video_pct":25.5,"cancelar_pct":38.1}},"intenciones":[{"id":"indice_sospecha_que_es","keywords":["indice sospecha","indice de sospecha","que es el indice","que mide el indice","que es sospecha","score sospecha","score de sospecha","que mide el score","para que sirve el indice","que significa el score"],"respuestas":["El Indice_Sospecha es un puntaje de 0 a 100 por publicación. Combina 5 señales: perfil de cuenta (35%), antigüedad invertida (25%), velocidad de viralización (20%), contenido reciclado (10%) y tipo de publicación (10%). Arriba de 50 → cancelar. Abajo de 30 → mantener.","Es el corazón del sistema: una cifra 0-100 por publicación que resume qué tan sospechosa es su fuente. El perfil vale 35 puntos porque un Bot o Cuenta_Nueva es estructuralmente menos fiable que una cuenta Verificada. Mediana global: 26.8."]},{"id":"formula","keywords":["como se calcula el indice","formula del indice","formula sospecha","como calcula","pesos del indice","componentes del indice","factores del indice","variables del indice"],"respuestas":["Fórmula: Indice_Sospecha = 100 × (0.35×perfil_riesgo + 0.25×antigüedad_invertida + 0.20×velocidad_viral + 0.10×contenido_reciclado + 0.10×tipo_contenido). Cada factor normalizado 0-1. El perfil vale 35% porque es la señal más difícil de falsear a corto plazo.","Los 5 componentes: 35% perfil (Bot=1.0, Cuenta_Nueva=0.67, Verificado=0.0), 25% antigüedad invertida (cuenta de 0 días = sospecha alta), 20% velocidad viral (percentil de interacciones/min), 10% contenido reciclado (idéntico=1.0, posible=0.6, no=0.0), 10% tipo de publicación."]},{"id":"confiabilidad","keywords":["score confiabilidad","confiabilidad","que es la confiabilidad","como se calcula la confiabilidad","score de confiabilidad","que mide la confiabilidad"],"respuestas":["El Score_Confiabilidad (0-100) mide señales positivas: 40% antigüedad de cuenta, 40% corroboraciones independientes (cuántas fuentes sin conexión dicen lo mismo) y 20% tipo de publicación confiable. NO es 100 menos el índice de sospecha —son dos medidas independientes.","Las cuentas Verificadas tienen confiabilidad media de 60.6; los bots apenas 23.4. La publicación más confiable es @RedFactCheckCo (ID 1122): Score_Confiabilidad 98.1, Indice_Sospecha 1.5 —cuenta verificada de 8 años que alertó sobre el patrón de bots."]},{"id":"cancelar","keywords":["cancelar","por que cancelar","cuando cancelar","romper contrato","porcentaje cancelar","cuando recomienda cancelar"],"respuestas":["El sistema recomienda 'cancelar' cuando el Indice_Sospecha supera 50 —umbral que captura el 97.8% de los bots y el 82.1% de cuentas nuevas. Representa el 38.1% de las 3.210 publicaciones. Significa que hay evidencia suficiente para romper contratos con PulsoTech, UrbanKrew o NovaVolt."]},{"id":"bajar_video","keywords":["bajar video","bajar el video","retirar contenido","cuando bajar","porcentaje bajar","eliminar video","decision bajar"],"respuestas":["'Bajar_video' aplica cuando el Indice_Sospecha está entre 30 y 50 —la zona gris del perfil Anónimo. El 25.5% del dataset. La evidencia justifica retirar el contenido pero no romper contratos. El 52.5% de los Anónimos queda en esta zona."]},{"id":"mantener","keywords":["mantener","dejar que siga","cuando mantener","porcentaje mantener","pruebas debiles","contenido legitimo"],"respuestas":["'Mantener' aplica con Indice_Sospecha menor a 30 —protege a cuentas Verificadas (93.8% en esta zona) y Fan_Antiguo (84.8%). El 36.4% del dataset. No significa inocencia, sino que esas publicaciones no aportan evidencia accionable."]},{"id":"bots","keywords":["cuantos bots","bots sospechosos","cuentas sospechosas","bot sospechoso","cuentas nuevas","hay bots","detecto bots","cuentas falsas"],"respuestas":["232 publicaciones de Bot_Sospechoso —el 7.2% del total. El 100% cae en 'cancelar' con mediana de sospecha 82.6. Además 608 publicaciones de Cuenta_Nueva, el 98.7% en 'cancelar'. Combinados: 840 publicaciones que casi todas recomiendan acción inmediata."]},{"id":"mas_sospechosa","keywords":["publicacion mas sospechosa","registro mas sospechoso","mayor indice sospecha","score mas alto","mas sospechoso","ejemplo sospechoso"],"respuestas":["La más sospechosa es el ID 2440 (@despiertaya_760, X): Bot_Sospechoso, cuenta de 0 días, repost '#CancelenAKai — KAI ES CULPABLE'. Indice_Sospecha: 85.9/100. Activó los 5 factores de riesgo. Es el ejemplo de manual del sistema."]},{"id":"mas_confiable","keywords":["publicacion mas confiable","registro mas confiable","mayor confiabilidad","mas confiable","fuente mas confiable","ejemplo confiable"],"respuestas":["La más confiable es el ID 1122 (@RedFactCheckCo, X): perfil Verificado, 3.000 días de antigüedad, post original que pedía 'cautela: varias publicaciones repiten el mismo texto en minutos'. Score_Confiabilidad: 98.1. Indice_Sospecha: 1.5."]},{"id":"hashtags","keywords":["hashtags","hashtag mas usado","etiquetas","trending","tendencias","hastag"],"respuestas":["Top 5 hashtags: #EvaluandoLaSituacion (389), #QueDijoKai (383), #Cancelado (368), #KaiDuarte (357), #CancelenAKai (319). Había dos frentes: acusadores (#CancelenAKai, #KaiMentiroso) y defensores (#JusticiaParaKai 276, #YoLeCreoAKai 97). Los neutrales dominaron en volumen."]},{"id":"marcas","keywords":["marcas","patrocinadores","sponsors","pulsotech","urbankrew","novavolt","empresas"],"respuestas":["Tres marcas patrocinadoras: PulsoTech (64 menciones), UrbanKrew (60), NovaVolt (57). Sus cuentas oficiales verificadas tienen Indice_Sospecha bajo y quedan en 'mantener' —la presión para actuar viene de otras fuentes, no de sus propias publicaciones."]},{"id":"reciclado","keywords":["contenido reciclado","como detectaron el reciclado","que es contenido reciclado","contenido repetido","textos copiados"],"respuestas":["El 5.9% del dataset —190 publicaciones— es contenido reciclado: 121 idénticos a un escándalo de 2023 con otro creador, y 69 'posiblemente similares'. El sistema los captura con el factor f4_reciclado (peso 10% en el Indice_Sospecha)."]},{"id":"datos","keywords":["de donde vienen los datos","origen de los datos","dataset","fuente de datos","cuantos registros","cuantas publicaciones"],"respuestas":["3.210 publicaciones de 4 plataformas: X (1.442, 44.9%), TikTok (894, 27.8%), Instagram (667, 20.8%) y Foros anónimos (207, 6.4%). CSV cargado directo a Supabase —flujo ELT puro. Las transformaciones viven en SQL, no en Python."]},{"id":"no_ml","keywords":["por que no machine learning","por que no ml","no usaron ia","por que reglas","por que no clasificador","sin machine learning"],"respuestas":["Tres razones: 1) No hay etiquetas de entrenamiento. 2) El tiempo era de 4 horas. 3) Las reglas son auditables: cualquiera puede preguntar 'por qué este score es 82' y la respuesta es directa. El score ya separa bots (82.6) de verificados (19.1) con 63 puntos de diferencia."]},{"id":"sistema","keywords":["como funciona el sistema","como funciona","explica el sistema","que hace el sistema","arquitectura","pipeline"],"respuestas":["El sistema tiene 3 pasos: 1) Carga el CSV crudo de 3.210 publicaciones a Supabase sin modificar nada. 2) SQL calcula Indice_Sospecha y Score_Confiabilidad dentro de Supabase. 3) Este dashboard HTML consulta Supabase en tiempo real y muestra los scores y la decisión recomendada."]}],"fallback":["Esa pregunta está fuera del alcance de esta demo. Puedo explicarte el Indice_Sospecha, el Score_Confiabilidad, las tres decisiones, los bots detectados, los hashtags, las marcas, o el pipeline del sistema.","No tengo ese dato en el demo. Puedo mostrarte cómo el sistema clasifica las 3.210 publicaciones en cancelar (38.1%), bajar_video (25.5%) y mantener (36.4%). ¿Por dónde empezamos?"]};
+const CAT = {"meta":{"cortes":{"umbral_mantener":30.0,"umbral_cancelar":50.0},"distribucion":{"mantener_pct":36.4,"bajar_video_pct":25.5,"cancelar_pct":38.1}},"intenciones":[{"id":"indice_sospecha_que_es","keywords":["indice sospecha","indice de sospecha","que es el indice","que mide el indice","que es sospecha","score sospecha","score de sospecha","que mide el score","para que sirve el indice","que significa el score"],"respuestas":["El Índice de Sospecha es un puntaje de 0 a 100 por publicación. Combina 5 señales: perfil de cuenta (35%), antigüedad invertida (25%), velocidad de viralización (20%), contenido reciclado (10%) y tipo de publicación (10%). Arriba de 50 → cancelar. Abajo de 30 → mantener.","Es el corazón del sistema: una cifra 0-100 por publicación que resume qué tan sospechosa es su fuente. El perfil vale 35 puntos porque un Bot o Cuenta_Nueva es estructuralmente menos fiable que una cuenta Verificada. Mediana global: 26.8."]},{"id":"formula","keywords":["como se calcula el indice","formula del indice","formula sospecha","como calcula","pesos del indice","componentes del indice","factores del indice","variables del indice"],"respuestas":["Fórmula: Índice de Sospecha = 100 × (0.35×perfil_riesgo + 0.25×antigüedad_invertida + 0.20×velocidad_viral + 0.10×contenido_reciclado + 0.10×tipo_contenido). Cada factor normalizado 0-1. El perfil vale 35% porque es la señal más difícil de falsear a corto plazo.","Los 5 componentes: 35% perfil (Bot=1.0, Cuenta_Nueva=0.67, Verificado=0.0), 25% antigüedad invertida (cuenta de 0 días = sospecha alta), 20% velocidad viral (percentil de interacciones/min), 10% contenido reciclado (idéntico=1.0, posible=0.6, no=0.0), 10% tipo de publicación."]},{"id":"confiabilidad","keywords":["score confiabilidad","confiabilidad","que es la confiabilidad","como se calcula la confiabilidad","score de confiabilidad","que mide la confiabilidad"],"respuestas":["El Score de Confiabilidad (0-100) mide señales positivas: 40% antigüedad de cuenta, 40% corroboraciones independientes (cuántas fuentes sin conexión dicen lo mismo) y 20% tipo de publicación confiable. NO es 100 menos el Índice de Sospecha — son dos medidas independientes.","Las cuentas Verificadas tienen confiabilidad media de 60.6; los bots apenas 23.4. La publicación más confiable es @RedFactCheckCo (ID 1122): Score de Confiabilidad 98.1, Índice de Sospecha 1.5 — cuenta verificada de 8 años que alertó sobre el patrón de bots."]},{"id":"cancelar","keywords":["cancelar","por que cancelar","cuando cancelar","romper contrato","porcentaje cancelar","cuando recomienda cancelar"],"respuestas":["El sistema marca 'cancelar' cuando el Índice de Sospecha supera 50 — umbral que captura el 97.8% de los bots y el 82.1% de cuentas nuevas. Representa el 38.1% de las 3.210 publicaciones. Pero dado que 'mantener' tiene el 36.4%, la diferencia es solo 1.7 puntos — zona de baja certeza."]},{"id":"bajar_video","keywords":["bajar video","bajar el video","retirar contenido","cuando bajar","porcentaje bajar","eliminar video","decision bajar"],"respuestas":["'Bajar_video' aplica cuando el Índice de Sospecha está entre 30 y 50 — la zona gris del perfil Anónimo. El 25.5% del dataset. La evidencia justifica retirar el contenido pero no romper contratos. El 52.5% de los Anónimos queda en esta zona."]},{"id":"mantener","keywords":["mantener","dejar que siga","cuando mantener","porcentaje mantener","pruebas debiles","contenido legitimo"],"respuestas":["'Mantener' aplica con Índice de Sospecha menor a 30 — protege a cuentas Verificadas (93.8% en esta zona) y Fan_Antiguo (84.8%). El 36.4% del dataset. No significa inocencia, sino que esas publicaciones no aportan evidencia accionable."]},{"id":"bots","keywords":["cuantos bots","bots sospechosos","cuentas sospechosas","bot sospechoso","cuentas nuevas","hay bots","detecto bots","cuentas falsas"],"respuestas":["232 publicaciones de Bot_Sospechoso — el 7.2% del total. El 100% cae en 'cancelar' con mediana de sospecha 82.6. Además 608 publicaciones de Cuenta_Nueva, el 98.7% en 'cancelar'. Combinados: 840 publicaciones que casi todas recomiendan acción inmediata."]},{"id":"mas_sospechosa","keywords":["publicacion mas sospechosa","registro mas sospechoso","mayor indice sospecha","score mas alto","mas sospechoso","ejemplo sospechoso"],"respuestas":["La más sospechosa es el ID 2440 (@despiertaya_760, X): Bot_Sospechoso, cuenta de 0 días, repost '#CancelenAKai — KAI ES CULPABLE'. Índice de Sospecha: 85.9/100. Activó los 5 factores de riesgo. Es el ejemplo de manual del sistema."]},{"id":"mas_confiable","keywords":["publicacion mas confiable","registro mas confiable","mayor confiabilidad","mas confiable","fuente mas confiable","ejemplo confiable"],"respuestas":["La más confiable es el ID 1122 (@RedFactCheckCo, X): perfil Verificado, 3.000 días de antigüedad, post original que pedía 'cautela: varias publicaciones repiten el mismo texto en minutos'. Score de Confiabilidad: 98.1. Índice de Sospecha: 1.5."]},{"id":"hashtags","keywords":["hashtags","hashtag mas usado","etiquetas","trending","tendencias","hastag"],"respuestas":["Top 5 hashtags: #EvaluandoLaSituacion (389), #QueDijoKai (383), #Cancelado (368), #KaiDuarte (357), #CancelenAKai (319). Había dos frentes: acusadores (#CancelenAKai, #KaiMentiroso) y defensores (#JusticiaParaKai 276, #YoLeCreoAKai 97). Los neutrales dominaron en volumen."]},{"id":"marcas","keywords":["marcas","patrocinadores","sponsors","pulsotech","urbankrew","novavolt","empresas"],"respuestas":["Tres marcas patrocinadoras: PulsoTech (64 menciones), UrbanKrew (60), NovaVolt (57). Sus cuentas oficiales verificadas tienen Índice de Sospecha bajo y quedan en 'mantener' — la presión para actuar viene de otras fuentes, no de sus propias publicaciones."]},{"id":"reciclado","keywords":["contenido reciclado","como detectaron el reciclado","que es contenido reciclado","contenido repetido","textos copiados"],"respuestas":["El 5.9% del dataset — 190 publicaciones — es contenido reciclado: 121 idénticos a un escándalo de 2023 con otro creador, y 69 'posiblemente similares'. El sistema los captura con el factor f4_reciclado (peso 10% en el Índice de Sospecha). Si se confirma que son copias, es evidencia directa de fabricación.","Contenido reciclado significa que el texto de esa publicación ya existía en otro escándalo anterior, con otro creador de contenido, en 2023. No fue creado en respuesta a Kai — fue reutilizado. 121 publicaciones son copias idénticas, 69 son similares. Esto es una señal de manipulación organizada."]},{"id":"datos","keywords":["de donde vienen los datos","origen de los datos","dataset","fuente de datos","cuantos registros","cuantas publicaciones"],"respuestas":["3.210 publicaciones de 4 plataformas: X (1.442, 44.9%), TikTok (894, 27.8%), Instagram (667, 20.8%) y Foros anónimos (207, 6.4%). CSV cargado directo a Supabase — flujo ELT puro. Las transformaciones viven en SQL, no en Python."]},{"id":"no_ml","keywords":["por que no machine learning","por que no ml","no usaron ia","por que reglas","por que no clasificador","sin machine learning"],"respuestas":["Tres razones: 1) No hay etiquetas de entrenamiento. 2) El tiempo era de 4 horas. 3) Las reglas son auditables: cualquiera puede preguntar 'por qué este score es 82' y la respuesta es directa. El score ya separa bots (82.6) de verificados (19.1) con 63 puntos de diferencia."]},{"id":"sistema","keywords":["como funciona el sistema","como funciona","explica el sistema","que hace el sistema","arquitectura","pipeline"],"respuestas":["El sistema tiene 3 pasos: 1) Carga el CSV crudo de 3.210 publicaciones a Supabase sin modificar nada. 2) SQL calcula Índice de Sospecha y Score de Confiabilidad dentro de Supabase. 3) Este dashboard HTML consulta Supabase en tiempo real y muestra los scores y la decisión recomendada."]},{"id":"evidencia_dividida","keywords":["evidencia dividida","zona gris","por que dividida","diferencia pequena","por que no cancelar directamente","incertidumbre","certeza baja"],"respuestas":["La diferencia entre 'cancelar' (38.1%) y 'mantener' (36.4%) es de solo 1.7 puntos porcentuales. Eso no es suficiente para una decisión contractual definitiva. El sistema recomienda una acción intermedia: bajar el video temporalmente y activar revisión humana antes de romper contratos.","El dataset está genuinamente dividido: el 38.1% de las publicaciones tiene señales de sospecha alta, pero el 36.4% proviene de fuentes que el sistema no considera amenazantes. Esta ambigüedad es información en sí misma — indica que no hay consenso claro y que la decisión requiere validación adicional."]},{"id":"pico_3am","keywords":["pico 3 am","3 de la manana","pico temporal","hora pico","amplificacion","coordinacion","por que de madrugada"],"respuestas":["El 38% de las 3.210 publicaciones apareció en una sola hora, entre las 3:00 y las 4:00 AM. Ese volumen de publicaciones en una hora de madrugada es estadísticamente anómalo y consistente con amplificación coordinada — es decir, múltiples cuentas publicando al mismo tiempo de forma no orgánica.","El pico de las 3 AM es una de las señales más potentes del dataset. La velocidad de viralización en esa hora supera con creces el p99 del dataset. Combinado con el alto porcentaje de cuentas Bot y Cuenta_Nueva activas en ese mismo período, refuerza la hipótesis de coordinación."]},{"id":"recomendacion_concreta","keywords":["recomendacion concreta","que hacer","que recomiendan","accion concreta","que deberia hacer la plataforma","siguiente paso","que hacemos"],"respuestas":["La recomendación operativa del sistema es: 1) Bajar el video temporalmente para detener la amplificación. 2) Activar revisión humana prioritaria de las 232 publicaciones de bots y las 190 de contenido reciclado — esas son las más verificables directamente. 3) No romper contratos con PulsoTech, UrbanKrew o NovaVolt hasta validar al menos una fuente de evidencia original. La diferencia de 1.7% entre cancelar y mantener no justifica una decisión contractual irreversible.","Tres pasos concretos: primero, retirar el video de trending (no necesita evidencia perfecta). Segundo, investigar las 121 publicaciones idénticas a 2023 — si son copias, eso es evidencia directa de fabricación. Tercero, esperar al menos una corroboración independiente de fuente verificada antes de actuar contractualmente. Actualmente el 58.8% de las publicaciones no tiene ninguna corroboración."]}],"fallback":["Esa pregunta está fuera del alcance de esta demo. Puedo explicarte el Índice de Sospecha, el Score de Confiabilidad, por qué la evidencia está dividida, qué pasó a las 3 AM, o cuál es la recomendación operativa concreta.","No tengo ese dato en el demo. Puedo mostrarte cómo el sistema clasifica las 3.210 publicaciones en cancelar (38.1%), bajar_video (25.5%) y mantener (36.4%). ¿Por dónde empezamos?"]};
 
 /* ══════════════════════════════════════════════════════════════
    MOTOR CHATBOT
@@ -688,7 +849,7 @@ function toggleChat() {
   chatOpen = !chatOpen;
   $('cpanel').classList.toggle('open', chatOpen);
   if (chatOpen && !$('cmsgs').children.length) {
-    addMsg('Hola. Puedo explicarte cómo funciona el sistema de análisis del caso Kai Duarte: el Indice_Sospecha, el Score_Confiabilidad, las tres decisiones y los datos del dataset. ¿Por dónde empezamos?', 'bot');
+    addMsg('Hola. Puedo explicarte cómo funciona el sistema de análisis del caso Kai Duarte: el Índice de Sospecha, el Score de Confiabilidad, por qué la evidencia está dividida, qué pasó a las 3 AM, o cuál es la recomendación operativa concreta. ¿Por dónde empezamos?', 'bot');
   }
 }
 
