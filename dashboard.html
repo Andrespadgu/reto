@@ -214,6 +214,40 @@
     /* ANOTACION PICO */
     #peak-note { background:#fef9c3; border:1px solid #fbbf24; border-radius:8px; padding:9px 14px; margin-top:10px; font-size:.82rem; color:#78350f; display:flex; gap:8px; align-items:flex-start; }
 
+
+    /* AUTOENCODER SECTION */
+    #ae-section { background:#fff; border-radius:var(--r); box-shadow:var(--sh); padding:18px 22px; margin-bottom:18px; }
+    .ae-explain { background:#f5f3ff; border:1px solid #ddd6fe; border-radius:10px; padding:13px 17px; margin-bottom:14px; display:flex; gap:13px; align-items:flex-start; }
+    .ae-explain-icon { font-size:1.8rem; line-height:1; flex-shrink:0; margin-top:2px; }
+    .ae-explain-txt h4 { font-size:.87rem; font-weight:700; color:#5b21b6; margin-bottom:4px; }
+    .ae-explain-txt p { font-size:.82rem; color:#374151; line-height:1.55; }
+    .ae-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:14px; }
+    .ae-metric { border-radius:10px; padding:13px 16px; text-align:center; border:1px solid; }
+    .ae-metric.corr { background:#f5f3ff; border-color:#ddd6fe; }
+    .ae-metric.anom { background:#fef2f2; border-color:#fecaca; }
+    .ae-metric.divg { background:#fffbeb; border-color:#fcd34d; }
+    .ae-metric-val { font-size:1.7rem; font-weight:900; line-height:1; margin-bottom:3px; }
+    .ae-metric.corr .ae-metric-val { color:#7c3aed; }
+    .ae-metric.anom .ae-metric-val { color:#dc2626; }
+    .ae-metric.divg .ae-metric-val { color:#d97706; }
+    .ae-metric-lbl { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:var(--slate); }
+    .ae-metric-sub { font-size:.7rem; color:var(--slate); margin-top:2px; }
+    .ae-body { display:grid; grid-template-columns:5fr 7fr; gap:16px; }
+    .aebar-row { display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+    .aebar-lbl { font-size:.78rem; min-width:128px; font-weight:600; color:var(--navy); }
+    .aebar-track { flex:1; height:9px; background:var(--border); border-radius:999px; overflow:hidden; }
+    .aebar-fill { height:100%; border-radius:999px; transition:width .7s ease; }
+    .aebar-val { font-size:.78rem; font-weight:800; min-width:32px; text-align:right; }
+    .ae-div-table { width:100%; border-collapse:collapse; font-size:.79rem; }
+    .ae-div-table th { font-size:.67rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:var(--slate); padding:5px 7px; border-bottom:2px solid var(--border); text-align:left; white-space:nowrap; }
+    .ae-div-table td { padding:7px 7px; border-bottom:1px solid var(--border); vertical-align:top; }
+    .ae-div-table tr:last-child td { border-bottom:none; }
+    .ae-div-table tr:hover td { background:#f8fafc; }
+    .ae-sc-ae  { font-weight:800; color:#dc2626; }
+    .ae-sc-reg { font-weight:800; color:#16a34a; }
+    .ae-why { font-size:.71rem; color:var(--slate); font-style:italic; line-height:1.4; }
+    .ae-ml-badge { font-size:.62rem; font-weight:700; letter-spacing:.6px; text-transform:uppercase; background:#7c3aed; color:#fff; padding:2px 7px; border-radius:999px; margin-left:7px; }
+
     @media(max-width:860px){
       .dgrid,.row2,.row2b,.signals-grid { grid-template-columns:1fr; }
       #cpanel { width:calc(100vw - 28px); right:14px; }
@@ -324,6 +358,67 @@
       <li><span class="hi">🟢</span><span><strong>Cuentas verificadas tranquilas:</strong> el 93.8% de publicaciones de perfiles Verificados recomienda "mantener". No hay señal de alerta real en fuentes primarias.</span></li>
       <li><span class="hi">⚖️</span><span><strong>Decisión dividida:</strong> la diferencia entre "cancelar" y "mantener" es de solo 1.7 puntos porcentuales — no hay consenso claro. La decisión requiere validación humana antes de acciones contractuales.</span></li>
     </ul>
+  </div>
+
+
+  <!-- AUTOENCODER -->
+  <div id="ae-section">
+    <div class="stitle">
+      Autoencoder &mdash; Detector de Anomal&iacute;as Aprendido
+      <span class="ae-ml-badge">ML &middot; Sin etiquetas</span>
+    </div>
+
+    <div class="ae-explain">
+      <div class="ae-explain-icon">&#129504;</div>
+      <div class="ae-explain-txt">
+        <h4>C&oacute;mo funciona este modelo</h4>
+        <p>El autoencoder se entren&oacute; <strong>exclusivamente con las 1.298 publicaciones de cuentas Verificadas y Fan_Antiguo</strong> &mdash; aprendi&oacute; qu&eacute; es comportamiento normal.
+        Para cada publicaci&oacute;n del dataset, comprime sus 20 caracter&iacute;sticas a <strong>3 n&uacute;meros</strong> y luego intenta reconstruirlas.
+        Cuanto mayor el <strong>error de reconstrucci&oacute;n</strong>, m&aacute;s anormal es esa publicaci&oacute;n.
+        Sin etiquetas externas. Sin reglas manuales. La arquitectura es 20&rarr;12&rarr;6&rarr;<strong>[3 bottleneck]</strong>&rarr;6&rarr;12&rarr;20.</p>
+      </div>
+    </div>
+
+    <div class="ae-metrics">
+      <div class="ae-metric corr">
+        <div class="ae-metric-val">0.797</div>
+        <div class="ae-metric-lbl">Correlaci&oacute;n con reglas</div>
+        <div class="ae-metric-sub">Ambos coinciden en el 80%</div>
+      </div>
+      <div class="ae-metric anom">
+        <div class="ae-metric-val">1.640</div>
+        <div class="ae-metric-lbl">Publicaciones an&oacute;malas</div>
+        <div class="ae-metric-sub">Score AE &gt; 50 de 3.210 total</div>
+      </div>
+      <div class="ae-metric divg">
+        <div class="ae-metric-val">5</div>
+        <div class="ae-metric-lbl">Casos divergentes</div>
+        <div class="ae-metric-sub">AE detecta, reglas ignoraban</div>
+      </div>
+    </div>
+
+    <div class="ae-body">
+      <div>
+        <div class="stitle" style="margin-bottom:10px">Score de anomal&iacute;a mediano por perfil</div>
+        <div id="ae-bars"></div>
+        <p style="font-size:.74rem;color:var(--slate);margin-top:10px;line-height:1.5">
+          <strong>Clave:</strong> Fan_Antiguo y Verificado son el grupo de entrenamiento &mdash; su score bajo confirma que el modelo aprendi&oacute; bien.
+          El salto a ~60-70 en Bots y Cuentas Nuevas emerge sin que ning&uacute;n analista haya codificado esa diferencia.
+        </p>
+      </div>
+      <div>
+        <div class="stitle" style="margin-bottom:10px">Casos que el AE detect&oacute; y las reglas ignoraban</div>
+        <table class="ae-div-table">
+          <thead><tr>
+            <th>ID</th><th>Handle</th><th>Perfil</th><th>AE</th><th>Reglas</th><th>Por qu&eacute; lo detect&oacute;</th>
+          </tr></thead>
+          <tbody id="ae-div-body"></tbody>
+        </table>
+        <p style="font-size:.74rem;color:var(--slate);margin-top:10px;line-height:1.5">
+          <strong>@tatianalopez_</strong> (ID 2219): Score AE 83.3 vs reglas 19.7. La cuenta tiene 4.000 d&iacute;as de antig&uuml;edad, nada viral &mdash; pero su combinaci&oacute;n de plataforma, tipo y horario es estad&iacute;sticamente imposible de reconstruir desde el baseline normal.
+        </p>
+      </div>
+    </div>
   </div>
 
   <!-- GRÁFICAS -->
@@ -720,7 +815,64 @@ function renderPubs(data) {
 /* ══════════════════════════════════════════════════════════════
    CARGA INICIAL CON DATOS ESTÁTICOS (inmediata)
 ══════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════
+   AUTOENCODER DATA + RENDER
+   Datos calculados en ml/autoencoder.py con sklearn MLPRegressor.
+   Arquitectura: 20->12->6->3->6->12->20 | Loss: 0.027 | iter: 107
+══════════════════════════════════════════════════════════════ */
+const AE_DATA = {
+  perfiles: [
+    { nombre:'Bot_Sospechoso', mediana:65.5, color:'#dc2626', badge:'bot'  },
+    { nombre:'Cuenta_Nueva',   mediana:62.5, color:'#ea580c', badge:'new'  },
+    { nombre:'Anonimo',        mediana:57.3, color:'#d97706', badge:'anon' },
+    { nombre:'Fan_Antiguo',    mediana:11.7, color:'#16a34a', badge:'fan'  },
+    { nombre:'Verificado',     mediana:11.1, color:'#2563eb', badge:'ver'  },
+  ],
+  divergentes: [
+    { id:2219, handle:'@tatianalopez_', perfil:'Anonimo',   plat:'TikTok',       ae:83.3, reg:19.7, why:'Patron global imposible de reconstruir desde cuentas normales a pesar de metricas individuales bajas.' },
+    { id:1759, handle:'@tatianalopez_', perfil:'Anonimo',   plat:'X',            ae:51.5, reg:20.8, why:'Misma cuenta activa en multiples plataformas en pocas horas.' },
+    { id:900,  handle:'@kevinmoreno34', perfil:'Verificado', plat:'Foro anonimo', ae:51.3, reg:29.4, why:'Cuenta verificada publicando en foro anonimo: cruce de plataforma estadisticamente inusual.' },
+    { id:177,  handle:'@tatianalopez_', perfil:'Anonimo',   plat:'X',            ae:50.7, reg:20.7, why:'Tercer post de la misma cuenta en distintos horarios.' },
+    { id:672,  handle:'@hectorcun',     perfil:'Verificado', plat:'Foro anonimo', ae:50.7, reg:30.0, why:'Verificado en foro anonimo: combinacion de features fuera del rango normal.' },
+  ],
+};
+
+function renderAE() {
+  // Barras de score por perfil
+  const bars = $('ae-bars');
+  if (!bars) return;
+  bars.innerHTML = '';
+  AE_DATA.perfiles.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'aebar-row';
+    row.innerHTML =
+      '<span class="aebar-lbl"><span class="badge ' + p.badge + '">' + p.nombre + '</span></span>' +
+      '<div class="aebar-track"><div class="aebar-fill" style="width:' + p.mediana + '%;background:' + p.color + '"></div></div>' +
+      '<span class="aebar-val" style="color:' + p.color + '">' + p.mediana + '</span>';
+    bars.appendChild(row);
+  });
+
+  // Tabla de casos divergentes
+  const tbody = $('ae-div-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  AE_DATA.divergentes.forEach(d => {
+    const pc = d.perfil === 'Verificado' ? 'ver' : d.perfil === 'Anonimo' ? 'anon' : 'bot';
+    tbody.innerHTML +=
+      '<tr>' +
+      '<td><code style="font-size:.7rem;color:var(--slate)">#' + d.id + '</code></td>' +
+      '<td><strong>' + d.handle + '</strong><br><span style="font-size:.7rem;color:var(--slate)">' + d.plat + '</span></td>' +
+      '<td><span class="badge ' + pc + '">' + d.perfil + '</span></td>' +
+      '<td class="ae-sc-ae">' + d.ae + '</td>' +
+      '<td class="ae-sc-reg">' + d.reg + '</td>' +
+      '<td class="ae-why">' + d.why + '</td>' +
+      '</tr>';
+  });
+}
+
 function cargarEstatico() {
+  renderAE();
   renderDecisiones(STATIC.decisiones);
   renderTimeline(STATIC.timeline);
   renderPlataformas(STATIC.plataformas);
@@ -756,7 +908,7 @@ async function cargarTodo() {
 /* ══════════════════════════════════════════════════════════════
    CATÁLOGO CHATBOT (con nuevas intenciones)
 ══════════════════════════════════════════════════════════════ */
-const CAT = {"meta":{"cortes":{"umbral_mantener":30.0,"umbral_cancelar":50.0},"distribucion":{"mantener_pct":36.4,"bajar_video_pct":25.5,"cancelar_pct":38.1}},"intenciones":[{"id":"indice_sospecha_que_es","keywords":["indice sospecha","indice de sospecha","que es el indice","que mide el indice","que es sospecha","score sospecha","score de sospecha","que mide el score","para que sirve el indice","que significa el score"],"respuestas":["El Índice de Sospecha es un puntaje de 0 a 100 por publicación. Combina 5 señales: perfil de cuenta (35%), antigüedad invertida (25%), velocidad de viralización (20%), contenido reciclado (10%) y tipo de publicación (10%). Arriba de 50 → cancelar. Abajo de 30 → mantener.","Es el corazón del sistema: una cifra 0-100 por publicación que resume qué tan sospechosa es su fuente. El perfil vale 35 puntos porque un Bot o Cuenta_Nueva es estructuralmente menos fiable que una cuenta Verificada. Mediana global: 26.8."]},{"id":"formula","keywords":["como se calcula el indice","formula del indice","formula sospecha","como calcula","pesos del indice","componentes del indice","factores del indice","variables del indice"],"respuestas":["Fórmula: Índice de Sospecha = 100 × (0.35×perfil_riesgo + 0.25×antigüedad_invertida + 0.20×velocidad_viral + 0.10×contenido_reciclado + 0.10×tipo_contenido). Cada factor normalizado 0-1. El perfil vale 35% porque es la señal más difícil de falsear a corto plazo.","Los 5 componentes: 35% perfil (Bot=1.0, Cuenta_Nueva=0.67, Verificado=0.0), 25% antigüedad invertida (cuenta de 0 días = sospecha alta), 20% velocidad viral (percentil de interacciones/min), 10% contenido reciclado (idéntico=1.0, posible=0.6, no=0.0), 10% tipo de publicación."]},{"id":"confiabilidad","keywords":["score confiabilidad","confiabilidad","que es la confiabilidad","como se calcula la confiabilidad","score de confiabilidad","que mide la confiabilidad"],"respuestas":["El Score de Confiabilidad (0-100) mide señales positivas: 40% antigüedad de cuenta, 40% corroboraciones independientes (cuántas fuentes sin conexión dicen lo mismo) y 20% tipo de publicación confiable. NO es 100 menos el Índice de Sospecha — son dos medidas independientes.","Las cuentas Verificadas tienen confiabilidad media de 60.6; los bots apenas 23.4. La publicación más confiable es @RedFactCheckCo (ID 1122): Score de Confiabilidad 98.1, Índice de Sospecha 1.5 — cuenta verificada de 8 años que alertó sobre el patrón de bots."]},{"id":"cancelar","keywords":["cancelar","por que cancelar","cuando cancelar","romper contrato","porcentaje cancelar","cuando recomienda cancelar"],"respuestas":["El sistema marca 'cancelar' cuando el Índice de Sospecha supera 50 — umbral que captura el 97.8% de los bots y el 82.1% de cuentas nuevas. Representa el 38.1% de las 3.210 publicaciones. Pero dado que 'mantener' tiene el 36.4%, la diferencia es solo 1.7 puntos — zona de baja certeza."]},{"id":"bajar_video","keywords":["bajar video","bajar el video","retirar contenido","cuando bajar","porcentaje bajar","eliminar video","decision bajar"],"respuestas":["'Bajar_video' aplica cuando el Índice de Sospecha está entre 30 y 50 — la zona gris del perfil Anónimo. El 25.5% del dataset. La evidencia justifica retirar el contenido pero no romper contratos. El 52.5% de los Anónimos queda en esta zona."]},{"id":"mantener","keywords":["mantener","dejar que siga","cuando mantener","porcentaje mantener","pruebas debiles","contenido legitimo"],"respuestas":["'Mantener' aplica con Índice de Sospecha menor a 30 — protege a cuentas Verificadas (93.8% en esta zona) y Fan_Antiguo (84.8%). El 36.4% del dataset. No significa inocencia, sino que esas publicaciones no aportan evidencia accionable."]},{"id":"bots","keywords":["cuantos bots","bots sospechosos","cuentas sospechosas","bot sospechoso","cuentas nuevas","hay bots","detecto bots","cuentas falsas"],"respuestas":["232 publicaciones de Bot_Sospechoso — el 7.2% del total. El 100% cae en 'cancelar' con mediana de sospecha 82.6. Además 608 publicaciones de Cuenta_Nueva, el 98.7% en 'cancelar'. Combinados: 840 publicaciones que casi todas recomiendan acción inmediata."]},{"id":"mas_sospechosa","keywords":["publicacion mas sospechosa","registro mas sospechoso","mayor indice sospecha","score mas alto","mas sospechoso","ejemplo sospechoso"],"respuestas":["La más sospechosa es el ID 2440 (@despiertaya_760, X): Bot_Sospechoso, cuenta de 0 días, repost '#CancelenAKai — KAI ES CULPABLE'. Índice de Sospecha: 85.9/100. Activó los 5 factores de riesgo. Es el ejemplo de manual del sistema."]},{"id":"mas_confiable","keywords":["publicacion mas confiable","registro mas confiable","mayor confiabilidad","mas confiable","fuente mas confiable","ejemplo confiable"],"respuestas":["La más confiable es el ID 1122 (@RedFactCheckCo, X): perfil Verificado, 3.000 días de antigüedad, post original que pedía 'cautela: varias publicaciones repiten el mismo texto en minutos'. Score de Confiabilidad: 98.1. Índice de Sospecha: 1.5."]},{"id":"hashtags","keywords":["hashtags","hashtag mas usado","etiquetas","trending","tendencias","hastag"],"respuestas":["Top 5 hashtags: #EvaluandoLaSituacion (389), #QueDijoKai (383), #Cancelado (368), #KaiDuarte (357), #CancelenAKai (319). Había dos frentes: acusadores (#CancelenAKai, #KaiMentiroso) y defensores (#JusticiaParaKai 276, #YoLeCreoAKai 97). Los neutrales dominaron en volumen."]},{"id":"marcas","keywords":["marcas","patrocinadores","sponsors","pulsotech","urbankrew","novavolt","empresas"],"respuestas":["Tres marcas patrocinadoras: PulsoTech (64 menciones), UrbanKrew (60), NovaVolt (57). Sus cuentas oficiales verificadas tienen Índice de Sospecha bajo y quedan en 'mantener' — la presión para actuar viene de otras fuentes, no de sus propias publicaciones."]},{"id":"reciclado","keywords":["contenido reciclado","como detectaron el reciclado","que es contenido reciclado","contenido repetido","textos copiados"],"respuestas":["El 5.9% del dataset — 190 publicaciones — es contenido reciclado: 121 idénticos a un escándalo de 2023 con otro creador, y 69 'posiblemente similares'. El sistema los captura con el factor f4_reciclado (peso 10% en el Índice de Sospecha). Si se confirma que son copias, es evidencia directa de fabricación.","Contenido reciclado significa que el texto de esa publicación ya existía en otro escándalo anterior, con otro creador de contenido, en 2023. No fue creado en respuesta a Kai — fue reutilizado. 121 publicaciones son copias idénticas, 69 son similares. Esto es una señal de manipulación organizada."]},{"id":"datos","keywords":["de donde vienen los datos","origen de los datos","dataset","fuente de datos","cuantos registros","cuantas publicaciones"],"respuestas":["3.210 publicaciones de 4 plataformas: X (1.442, 44.9%), TikTok (894, 27.8%), Instagram (667, 20.8%) y Foros anónimos (207, 6.4%). CSV cargado directo a Supabase — flujo ELT puro. Las transformaciones viven en SQL, no en Python."]},{"id":"no_ml","keywords":["por que no machine learning","por que no ml","no usaron ia","por que reglas","por que no clasificador","sin machine learning"],"respuestas":["Tres razones: 1) No hay etiquetas de entrenamiento. 2) El tiempo era de 4 horas. 3) Las reglas son auditables: cualquiera puede preguntar 'por qué este score es 82' y la respuesta es directa. El score ya separa bots (82.6) de verificados (19.1) con 63 puntos de diferencia."]},{"id":"sistema","keywords":["como funciona el sistema","como funciona","explica el sistema","que hace el sistema","arquitectura","pipeline"],"respuestas":["El sistema tiene 3 pasos: 1) Carga el CSV crudo de 3.210 publicaciones a Supabase sin modificar nada. 2) SQL calcula Índice de Sospecha y Score de Confiabilidad dentro de Supabase. 3) Este dashboard HTML consulta Supabase en tiempo real y muestra los scores y la decisión recomendada."]},{"id":"evidencia_dividida","keywords":["evidencia dividida","zona gris","por que dividida","diferencia pequena","por que no cancelar directamente","incertidumbre","certeza baja"],"respuestas":["La diferencia entre 'cancelar' (38.1%) y 'mantener' (36.4%) es de solo 1.7 puntos porcentuales. Eso no es suficiente para una decisión contractual definitiva. El sistema recomienda una acción intermedia: bajar el video temporalmente y activar revisión humana antes de romper contratos.","El dataset está genuinamente dividido: el 38.1% de las publicaciones tiene señales de sospecha alta, pero el 36.4% proviene de fuentes que el sistema no considera amenazantes. Esta ambigüedad es información en sí misma — indica que no hay consenso claro y que la decisión requiere validación adicional."]},{"id":"pico_3am","keywords":["pico 3 am","3 de la manana","pico temporal","hora pico","amplificacion","coordinacion","por que de madrugada"],"respuestas":["El 38% de las 3.210 publicaciones apareció en una sola hora, entre las 3:00 y las 4:00 AM. Ese volumen de publicaciones en una hora de madrugada es estadísticamente anómalo y consistente con amplificación coordinada — es decir, múltiples cuentas publicando al mismo tiempo de forma no orgánica.","El pico de las 3 AM es una de las señales más potentes del dataset. La velocidad de viralización en esa hora supera con creces el p99 del dataset. Combinado con el alto porcentaje de cuentas Bot y Cuenta_Nueva activas en ese mismo período, refuerza la hipótesis de coordinación."]},{"id":"recomendacion_concreta","keywords":["recomendacion concreta","que hacer","que recomiendan","accion concreta","que deberia hacer la plataforma","siguiente paso","que hacemos"],"respuestas":["La recomendación operativa del sistema es: 1) Bajar el video temporalmente para detener la amplificación. 2) Activar revisión humana prioritaria de las 232 publicaciones de bots y las 190 de contenido reciclado — esas son las más verificables directamente. 3) No romper contratos con PulsoTech, UrbanKrew o NovaVolt hasta validar al menos una fuente de evidencia original. La diferencia de 1.7% entre cancelar y mantener no justifica una decisión contractual irreversible.","Tres pasos concretos: primero, retirar el video de trending (no necesita evidencia perfecta). Segundo, investigar las 121 publicaciones idénticas a 2023 — si son copias, eso es evidencia directa de fabricación. Tercero, esperar al menos una corroboración independiente de fuente verificada antes de actuar contractualmente. Actualmente el 58.8% de las publicaciones no tiene ninguna corroboración."]}],"fallback":["Esa pregunta está fuera del alcance de esta demo. Puedo explicarte el Índice de Sospecha, el Score de Confiabilidad, por qué la evidencia está dividida, qué pasó a las 3 AM, o cuál es la recomendación operativa concreta.","No tengo ese dato en el demo. Puedo mostrarte cómo el sistema clasifica las 3.210 publicaciones en cancelar (38.1%), bajar_video (25.5%) y mantener (36.4%). ¿Por dónde empezamos?"]};
+const CAT = {"meta":{"cortes":{"umbral_mantener":30.0,"umbral_cancelar":50.0},"distribucion":{"mantener_pct":36.4,"bajar_video_pct":25.5,"cancelar_pct":38.1}},"intenciones":[{"id":"indice_sospecha_que_es","keywords":["indice sospecha","indice de sospecha","que es el indice","que mide el indice","que es sospecha","score sospecha","score de sospecha","que mide el score","para que sirve el indice","que significa el score"],"respuestas":["El Índice de Sospecha es un puntaje de 0 a 100 por publicación. Combina 5 señales: perfil de cuenta (35%), antigüedad invertida (25%), velocidad de viralización (20%), contenido reciclado (10%) y tipo de publicación (10%). Arriba de 50 → cancelar. Abajo de 30 → mantener.","Es el corazón del sistema: una cifra 0-100 por publicación que resume qué tan sospechosa es su fuente. El perfil vale 35 puntos porque un Bot o Cuenta_Nueva es estructuralmente menos fiable que una cuenta Verificada. Mediana global: 26.8."]},{"id":"formula","keywords":["como se calcula el indice","formula del indice","formula sospecha","como calcula","pesos del indice","componentes del indice","factores del indice","variables del indice"],"respuestas":["Fórmula: Índice de Sospecha = 100 × (0.35×perfil_riesgo + 0.25×antigüedad_invertida + 0.20×velocidad_viral + 0.10×contenido_reciclado + 0.10×tipo_contenido). Cada factor normalizado 0-1. El perfil vale 35% porque es la señal más difícil de falsear a corto plazo.","Los 5 componentes: 35% perfil (Bot=1.0, Cuenta_Nueva=0.67, Verificado=0.0), 25% antigüedad invertida (cuenta de 0 días = sospecha alta), 20% velocidad viral (percentil de interacciones/min), 10% contenido reciclado (idéntico=1.0, posible=0.6, no=0.0), 10% tipo de publicación."]},{"id":"confiabilidad","keywords":["score confiabilidad","confiabilidad","que es la confiabilidad","como se calcula la confiabilidad","score de confiabilidad","que mide la confiabilidad"],"respuestas":["El Score de Confiabilidad (0-100) mide señales positivas: 40% antigüedad de cuenta, 40% corroboraciones independientes (cuántas fuentes sin conexión dicen lo mismo) y 20% tipo de publicación confiable. NO es 100 menos el Índice de Sospecha — son dos medidas independientes.","Las cuentas Verificadas tienen confiabilidad media de 60.6; los bots apenas 23.4. La publicación más confiable es @RedFactCheckCo (ID 1122): Score de Confiabilidad 98.1, Índice de Sospecha 1.5 — cuenta verificada de 8 años que alertó sobre el patrón de bots."]},{"id":"cancelar","keywords":["cancelar","por que cancelar","cuando cancelar","romper contrato","porcentaje cancelar","cuando recomienda cancelar"],"respuestas":["El sistema marca 'cancelar' cuando el Índice de Sospecha supera 50 — umbral que captura el 97.8% de los bots y el 82.1% de cuentas nuevas. Representa el 38.1% de las 3.210 publicaciones. Pero dado que 'mantener' tiene el 36.4%, la diferencia es solo 1.7 puntos — zona de baja certeza."]},{"id":"bajar_video","keywords":["bajar video","bajar el video","retirar contenido","cuando bajar","porcentaje bajar","eliminar video","decision bajar"],"respuestas":["'Bajar_video' aplica cuando el Índice de Sospecha está entre 30 y 50 — la zona gris del perfil Anónimo. El 25.5% del dataset. La evidencia justifica retirar el contenido pero no romper contratos. El 52.5% de los Anónimos queda en esta zona."]},{"id":"mantener","keywords":["mantener","dejar que siga","cuando mantener","porcentaje mantener","pruebas debiles","contenido legitimo"],"respuestas":["'Mantener' aplica con Índice de Sospecha menor a 30 — protege a cuentas Verificadas (93.8% en esta zona) y Fan_Antiguo (84.8%). El 36.4% del dataset. No significa inocencia, sino que esas publicaciones no aportan evidencia accionable."]},{"id":"bots","keywords":["cuantos bots","bots sospechosos","cuentas sospechosas","bot sospechoso","cuentas nuevas","hay bots","detecto bots","cuentas falsas"],"respuestas":["232 publicaciones de Bot_Sospechoso — el 7.2% del total. El 100% cae en 'cancelar' con mediana de sospecha 82.6. Además 608 publicaciones de Cuenta_Nueva, el 98.7% en 'cancelar'. Combinados: 840 publicaciones que casi todas recomiendan acción inmediata."]},{"id":"mas_sospechosa","keywords":["publicacion mas sospechosa","registro mas sospechoso","mayor indice sospecha","score mas alto","mas sospechoso","ejemplo sospechoso"],"respuestas":["La más sospechosa es el ID 2440 (@despiertaya_760, X): Bot_Sospechoso, cuenta de 0 días, repost '#CancelenAKai — KAI ES CULPABLE'. Índice de Sospecha: 85.9/100. Activó los 5 factores de riesgo. Es el ejemplo de manual del sistema."]},{"id":"mas_confiable","keywords":["publicacion mas confiable","registro mas confiable","mayor confiabilidad","mas confiable","fuente mas confiable","ejemplo confiable"],"respuestas":["La más confiable es el ID 1122 (@RedFactCheckCo, X): perfil Verificado, 3.000 días de antigüedad, post original que pedía 'cautela: varias publicaciones repiten el mismo texto en minutos'. Score de Confiabilidad: 98.1. Índice de Sospecha: 1.5."]},{"id":"hashtags","keywords":["hashtags","hashtag mas usado","etiquetas","trending","tendencias","hastag"],"respuestas":["Top 5 hashtags: #EvaluandoLaSituacion (389), #QueDijoKai (383), #Cancelado (368), #KaiDuarte (357), #CancelenAKai (319). Había dos frentes: acusadores (#CancelenAKai, #KaiMentiroso) y defensores (#JusticiaParaKai 276, #YoLeCreoAKai 97). Los neutrales dominaron en volumen."]},{"id":"marcas","keywords":["marcas","patrocinadores","sponsors","pulsotech","urbankrew","novavolt","empresas"],"respuestas":["Tres marcas patrocinadoras: PulsoTech (64 menciones), UrbanKrew (60), NovaVolt (57). Sus cuentas oficiales verificadas tienen Índice de Sospecha bajo y quedan en 'mantener' — la presión para actuar viene de otras fuentes, no de sus propias publicaciones."]},{"id":"reciclado","keywords":["contenido reciclado","como detectaron el reciclado","que es contenido reciclado","contenido repetido","textos copiados"],"respuestas":["El 5.9% del dataset — 190 publicaciones — es contenido reciclado: 121 idénticos a un escándalo de 2023 con otro creador, y 69 'posiblemente similares'. El sistema los captura con el factor f4_reciclado (peso 10% en el Índice de Sospecha). Si se confirma que son copias, es evidencia directa de fabricación.","Contenido reciclado significa que el texto de esa publicación ya existía en otro escándalo anterior, con otro creador de contenido, en 2023. No fue creado en respuesta a Kai — fue reutilizado. 121 publicaciones son copias idénticas, 69 son similares. Esto es una señal de manipulación organizada."]},{"id":"datos","keywords":["de donde vienen los datos","origen de los datos","dataset","fuente de datos","cuantos registros","cuantas publicaciones"],"respuestas":["3.210 publicaciones de 4 plataformas: X (1.442, 44.9%), TikTok (894, 27.8%), Instagram (667, 20.8%) y Foros anónimos (207, 6.4%). CSV cargado directo a Supabase — flujo ELT puro. Las transformaciones viven en SQL, no en Python."]},{"id":"no_ml","keywords":["por que no machine learning","por que no ml","no usaron ia","por que reglas","por que no clasificador","sin machine learning"],"respuestas":["Tres razones: 1) No hay etiquetas de entrenamiento. 2) El tiempo era de 4 horas. 3) Las reglas son auditables: cualquiera puede preguntar 'por qué este score es 82' y la respuesta es directa. El score ya separa bots (82.6) de verificados (19.1) con 63 puntos de diferencia."]},{"id":"sistema","keywords":["como funciona el sistema","como funciona","explica el sistema","que hace el sistema","arquitectura","pipeline"],"respuestas":["El sistema tiene 3 pasos: 1) Carga el CSV crudo de 3.210 publicaciones a Supabase sin modificar nada. 2) SQL calcula Índice de Sospecha y Score de Confiabilidad dentro de Supabase. 3) Este dashboard HTML consulta Supabase en tiempo real y muestra los scores y la decisión recomendada."]},{"id":"evidencia_dividida","keywords":["evidencia dividida","zona gris","por que dividida","diferencia pequena","por que no cancelar directamente","incertidumbre","certeza baja"],"respuestas":["La diferencia entre 'cancelar' (38.1%) y 'mantener' (36.4%) es de solo 1.7 puntos porcentuales. Eso no es suficiente para una decisión contractual definitiva. El sistema recomienda una acción intermedia: bajar el video temporalmente y activar revisión humana antes de romper contratos.","El dataset está genuinamente dividido: el 38.1% de las publicaciones tiene señales de sospecha alta, pero el 36.4% proviene de fuentes que el sistema no considera amenazantes. Esta ambigüedad es información en sí misma — indica que no hay consenso claro y que la decisión requiere validación adicional."]},{"id":"pico_3am","keywords":["pico 3 am","3 de la manana","pico temporal","hora pico","amplificacion","coordinacion","por que de madrugada"],"respuestas":["El 38% de las 3.210 publicaciones apareció en una sola hora, entre las 3:00 y las 4:00 AM. Ese volumen de publicaciones en una hora de madrugada es estadísticamente anómalo y consistente con amplificación coordinada — es decir, múltiples cuentas publicando al mismo tiempo de forma no orgánica.","El pico de las 3 AM es una de las señales más potentes del dataset. La velocidad de viralización en esa hora supera con creces el p99 del dataset. Combinado con el alto porcentaje de cuentas Bot y Cuenta_Nueva activas en ese mismo período, refuerza la hipótesis de coordinación."]},{"id":"recomendacion_concreta","keywords":["recomendacion concreta","que hacer","que recomiendan","accion concreta","que deberia hacer la plataforma","siguiente paso","que hacemos"],"respuestas":["La recomendación operativa del sistema es: 1) Bajar el video temporalmente para detener la amplificación. 2) Activar revisión humana prioritaria de las 232 publicaciones de bots y las 190 de contenido reciclado — esas son las más verificables directamente. 3) No romper contratos con PulsoTech, UrbanKrew o NovaVolt hasta validar al menos una fuente de evidencia original. La diferencia de 1.7% entre cancelar y mantener no justifica una decisión contractual irreversible.","Tres pasos concretos: primero, retirar el video de trending (no necesita evidencia perfecta). Segundo, investigar las 121 publicaciones idénticas a 2023 — si son copias, eso es evidencia directa de fabricación. Tercero, esperar al menos una corroboración independiente de fuente verificada antes de actuar contractualmente. Actualmente el 58.8% de las publicaciones no tiene ninguna corroboración."},{"id":"autoencoder","keywords":["autoencoder","modelo ml","machine learning","que es el autoencoder","como funciona el ml","inteligencia artificial","red neuronal","detector anomalias","sin etiquetas","aprendizaje automatico","modelo de ml","modelo de machine learning"],"respuestas":["El autoencoder es una red neuronal entrenada solo con las 1.298 publicaciones de cuentas Verificadas y Fan_Antiguo. Aprendió qué es comportamiento normal. Cuando le pasas un bot o cuenta nueva, intenta reconstruirlo con ese conocimiento y falla: ese error de reconstrucción es el Score de Anomalía (0-100). Sin etiquetas, sin reglas manuales. Arquitectura 20→12→6→3→6→12→20.","Convergencia en 107 iteraciones con loss 0.027. El bottleneck de 3 neuronas obliga al modelo a capturar la esencia del comportamiento normal en solo 3 números. Cualquier publicación que no quepa en ese espacio de 3 dimensiones es marcada como anómala. Mediana Bot_Sospechoso: 65.5 vs Verificado: 11.1."]},{"id":"score_anomalia_ae","keywords":["score anomalia","score de anomalia","que mide el score anomalia","puntaje anomalia","error reconstruccion","reconstruccion","cuanto vale el ae","que significan los numeros ae","resultado autoencoder"],"respuestas":["El Score de Anomalía va de 0 a 100. 0 = el autoencoder reconstruye perfectamente ese comportamiento (es normal). 100 = el modelo nunca vio nada parecido en el entrenamiento. Por perfil: Bot_Sospechoso mediana 65.5, Cuenta_Nueva 62.5, Anónimo 57.3, Fan_Antiguo 11.7, Verificado 11.1.","1.640 de las 3.210 publicaciones superan el umbral 50 en el Score de Anomalía. 506 superan 70. La correlación con el Índice de Sospecha basado en reglas es r=0.797: ambos sistemas coinciden en el 80% del análisis. El 20% restante son los hallazgos más interesantes."]},{"id":"tatianalopez_caso","keywords":["tatianalopez","tatiana lopez","caso divergente","cuenta anomala","el caso mas raro","que encontro el ae","hallazgo nuevo","que detecta diferente","casos que reglas perdieron","casos nuevos","cuentas que reglas ignoraron"],"respuestas":["El caso más llamativo: @tatianalopez_ tiene Índice de Sospecha de solo 19.7 (las reglas la ignoraban, casi 'mantener'). Pero el autoencoder le da Score de Anomalía de 83.3. La cuenta tiene 4.000 días de antigüedad y baja velocidad viral, pero la combinación de sus 20 features es estadísticamente inconsistente con cualquier cuenta normal. Las reglas no pueden detectar eso.","@tatianalopez_ aparece en 3 de los 5 casos divergentes. Publicó en TikTok y X en distintos horarios. Individualmente ninguna métrica activa las reglas, pero el patrón global es lo que el autoencoder detectó como imposible de reconstruir desde el baseline normal."]},{"id":"validacion_cruzada_ae","keywords":["por que dos modelos","reglas y autoencoder","dos sistemas","validacion","por que no solo uno","complementarios","diferencia entre ambos","que aporta el ae","valor del autoencoder","que agrega el ml"],"respuestas":["Los dos sistemas se complementan: las reglas son auditables (puedes explicar cada score), el autoencoder es robusto a patrones no previstos. r=0.797 significa que coinciden en el 80% — eso valida que ambos ven lo mismo. El 20% de divergencia son los casos más interesantes: el AE detectó 5 publicaciones que las reglas ignoraban, y no hay casos donde las reglas digan cancelar y el AE diga OK.","Si ambos sistemas dicen anómalo: certeza alta. Si solo el AE alerta: investigar el patrón global aunque las métricas individuales parezcan inocentes. Si solo las reglas alertan: la cuenta activa factores de riesgo conocidos pero su comportamiento global no es tan diferente al normal. El AE encontró 0 falsos positivos en el top de la lista de reglas."]}],"fallback":["Esa pregunta está fuera del alcance de esta demo. Puedo explicarte el Índice de Sospecha, el Score de Confiabilidad, por qué la evidencia está dividida, qué pasó a las 3 AM, o cuál es la recomendación operativa concreta.","No tengo ese dato en el demo. Puedo mostrarte cómo el sistema clasifica las 3.210 publicaciones en cancelar (38.1%), bajar_video (25.5%) y mantener (36.4%). ¿Por dónde empezamos?"]};
 
 /* ══════════════════════════════════════════════════════════════
    MOTOR CHATBOT
