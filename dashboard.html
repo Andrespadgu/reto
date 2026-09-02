@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema Cancelado — Dashboard de Análisis</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cancelar:    #dc2626;
+      --cancelar-bg: #fef2f2;
+      --bajar:       #ea580c;
+      --bajar-bg:    #fff7ed;
+      --mantener:    #16a34a;
+      --mantener-bg: #f0fdf4;
+      --navy:        #0f172a;
+      --navy2:       #1e293b;
+      --slate:       #64748b;
+      --light:       #f8fafc;
+      --border:      #e2e8f0;
+      --card-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+      --card-radius: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--light);
+      color: var(--navy);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    header {
+      background: var(--navy);
+      color: #f1f5f9;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,.35);
+    }
+
+    .header-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -.5px;
+      white-space: nowrap;
+    }
+
+    .header-logo span { color: #f87171; }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
+    }
+
+    #caso-select {
+      background: var(--navy2);
+      color: #f1f5f9;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: .9rem;
+      cursor: pointer;
+    }
+
+    #refresh-btn {
+      background: #1d4ed8;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 16px;
+      font-size: .9rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background .2s;
+    }
+    #refresh-btn:hover { background: #2563eb; }
+    #refresh-btn:disabled { background: #475569; cursor: not-allowed; }
+
+    #ultimo-refresh {
+      font-size: .78rem;
+      color: #94a3b8;
+      white-space: nowrap;
+    }
+
+    /* ── MAIN ───────────────────────────────────────────────── */
+    main {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 24px 24px 120px;
+    }
+
+    /* ── ESTADO / ERROR ─────────────────────────────────────── */
+    #estado-bar {
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: .9rem;
+      display: none;
+    }
+    #estado-bar.error { background: #fef2f2; border-color: #fca5a5; }
+    #estado-bar.visible { display: block; }
+
+    /* ── VEREDICTO FINAL ───────────────────────────────────── */
+    #veredicto-banner {
+      border-radius: var(--card-radius);
+      padding: 24px 32px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      box-shadow: var(--card-shadow);
+      transition: background .3s;
+    }
+    #veredicto-banner.cancelar    { background: #dc2626; }
+    #veredicto-banner.bajar_video { background: #ea580c; }
+    #veredicto-banner.mantener    { background: #16a34a; }
+    #veredicto-banner.cargando    { background: #334155; }
+
+    .veredicto-icono {
+      font-size: 2.8rem;
+      line-height: 1;
+    }
+    .veredicto-texto { color: #fff; }
+    .veredicto-etiqueta {
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: .85;
+      margin-bottom: 4px;
+    }
+    .veredicto-decision {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .veredicto-sub {
+      font-size: .92rem;
+      opacity: .88;
+      margin-top: 4px;
+    }
+    .veredicto-badge {
+      margin-left: auto;
+      background: rgba(255,255,255,.18);
+      color: #fff;
+      border-radius: 999px;
+      padding: 6px 18px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    /* ── CARDS DE DECISIÓN ──────────────────────────────────── */
+    .decision-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .decision-card {
+      background: #fff;
+      border-radius: var(--card-radius);
+      padding: 20px 24px;
+      box-shadow: var(--card-shadow);
+      border-left: 5px solid transparent;
+    }
+    .decision-card.cancelar    { border-color: var(--cancelar); }
+    .decision-card.bajar_video { border-color: var(--bajar); }
+    .decision-card.mantener    { border-color: var(--mantener); }
+
+    .dc-label {
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .dc-label.cancelar    { color: var(--cancelar); }
+    .dc-label.bajar_video { color: var(--bajar); }
+    .dc-label.mantener    { color: var(--mantener); }
+
+    .dc-pct {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--navy);
+    }
+    .dc-count {
+      font-size: .88rem;
+      color: var(--slate);
+      margin-top: 4px;
+    }
+    .dc-bar {
+      margin-top: 12px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--border);
+      overflow: hidden;
+    }
+    .dc-bar-fill { height: 100%; border-radius: 999px; transition: width .6s ease; }
+    .cancelar    .dc-bar-fill { background: var(--cancelar); }
+    .bajar_video .dc-bar-fill { background: var(--bajar); }
+    .mantener    .dc-bar-fill { background: var(--mantener); }
+
+    /* ── GRID DE SECCIONES ──────────────────────────────────── */
+    .section-card {
+      background: #fff;
+      border-radius: var(--card-radius);
+      box-shadow: var(--card-shadow);
+      padding: 20px 24px;
+      overflow: hidden;
+    }
+
+    .section-title {
+      font-size: .82rem;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: var(--slate);
+      margin-bottom: 16px;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .data-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    canvas { width: 100% !important; }
+
+    /* ── TABLA ──────────────────────────────────────────────── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .85rem;
+    }
+    .data-table th {
+      text-align: left;
+      font-weight: 600;
+      color: var(--slate);
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      padding: 8px 10px;
+      border-bottom: 2px solid var(--border);
+    }
+    .data-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--navy);
+      vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #f8fafc; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .badge.cancelar    { background: var(--cancelar-bg); color: var(--cancelar); }
+    .badge.bajar_video { background: var(--bajar-bg);    color: var(--bajar); }
+    .badge.mantener    { background: var(--mantener-bg); color: var(--mantener); }
+    .badge.bot         { background: #1e1b4b; color: #a5b4fc; }
+    .badge.nueva       { background: #fef3c7; color: #92400e; }
+    .badge.anonimo     { background: #f1f5f9; color: #475569; }
+    .badge.verificado  { background: #ecfdf5; color: #065f46; }
+    .badge.fan         { background: #eff6ff; color: #1d4ed8; }
+
+    .score-high { color: var(--cancelar); font-weight: 700; }
+    .score-mid  { color: var(--bajar);    font-weight: 700; }
+    .score-low  { color: var(--mantener); font-weight: 700; }
+
+    /* ── SEMÁFORO ───────────────────────────────────────────── */
+    .semaforo-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .semaforo-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .semaforo-label { font-size: .85rem; color: var(--slate); min-width: 130px; }
+    .semaforo-bar-wrap { flex: 1; height: 10px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .semaforo-bar-fill { height: 100%; border-radius: 999px; transition: width .6s ease; }
+    .semaforo-count { font-size: .85rem; font-weight: 700; min-width: 50px; text-align: right; }
+
+    /* ── TEXTO TRUNCADO ─────────────────────────────────────── */
+    .text-truncate {
+      max-width: 260px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--slate);
+      font-style: italic;
+      font-size: .8rem;
+    }
+
+    /* ── CHATBOT ────────────────────────────────────────────── */
+    #chat-trigger {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 22px;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,.3);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform .2s;
+    }
+    #chat-trigger:hover { transform: translateY(-2px); }
+
+    #chat-panel {
+      position: fixed;
+      bottom: 82px;
+      right: 24px;
+      width: 380px;
+      max-height: 520px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.15);
+      display: none;
+      flex-direction: column;
+      z-index: 200;
+      overflow: hidden;
+    }
+    #chat-panel.open { display: flex; }
+
+    .chat-header {
+      background: var(--navy);
+      color: #f1f5f9;
+      padding: 14px 18px;
+      font-weight: 700;
+      font-size: .95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chat-close {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0 2px;
+    }
+    .chat-close:hover { color: #fff; }
+
+    #chat-mensajes {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: var(--light);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .msg {
+      max-width: 88%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: .875rem;
+      line-height: 1.55;
+    }
+    .msg.bot  { background: #fff; border: 1px solid var(--border); align-self: flex-start; }
+    .msg.user { background: #1d4ed8; color: #fff; align-self: flex-end; }
+
+    .chat-input-row {
+      display: flex;
+      border-top: 1px solid var(--border);
+    }
+    #chat-input {
+      flex: 1;
+      padding: 12px 14px;
+      border: none;
+      outline: none;
+      font-size: .88rem;
+      font-family: inherit;
+    }
+    #chat-send {
+      background: #1d4ed8;
+      color: #fff;
+      border: none;
+      padding: 12px 18px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: .88rem;
+      transition: background .2s;
+    }
+    #chat-send:hover { background: #2563eb; }
+
+    .chat-chips {
+      padding: 10px 14px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: var(--light);
+    }
+    .chip {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: .76rem;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .chip:hover { background: #e2e8f0; }
+
+    /* ── LOADING SKELETON ───────────────────────────────────── */
+    .skel {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: skel-anim 1.4s infinite;
+      border-radius: 4px;
+      height: 16px;
+      margin-bottom: 8px;
+    }
+    @keyframes skel-anim {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    @media (max-width: 900px) {
+      .chart-row, .data-row, .decision-grid { grid-template-columns: 1fr; }
+      #chat-panel { width: calc(100vw - 32px); right: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════════════ -->
+<header>
+  <div class="header-logo">SISTEMA <span>CANCELADO</span></div>
+  <div class="header-controls">
+    <select id="caso-select">
+      <option value="kai_duarte">Caso Kai Duarte</option>
+    </select>
+    <button id="refresh-btn" onclick="cargarTodo()">↺ Actualizar</button>
+    <span id="ultimo-refresh">—</span>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN
+═══════════════════════════════════════════════════════════ -->
+<main>
+
+  <!-- Barra de estado / error -->
+  <div id="estado-bar"></div>
+
+  <!-- Veredicto final -->
+  <div id="veredicto-banner" class="cargando">
+    <div class="veredicto-icono">⏳</div>
+    <div class="veredicto-texto">
+      <div class="veredicto-etiqueta">Decisión final del caso</div>
+      <div class="veredicto-decision" id="veredicto-decision">Cargando datos...</div>
+      <div class="veredicto-sub" id="veredicto-sub">Conectando con Supabase</div>
+    </div>
+    <div class="veredicto-badge" id="veredicto-pct">—</div>
+  </div>
+
+  <!-- Cards de decisión -->
+  <div class="decision-grid">
+    <div class="decision-card cancelar">
+      <div class="dc-label cancelar">Cancelar</div>
+      <div class="dc-pct" id="pct-cancelar">—</div>
+      <div class="dc-count" id="cnt-cancelar">cargando…</div>
+      <div class="dc-bar"><div class="dc-bar-fill" id="bar-cancelar" style="width:0%"></div></div>
+    </div>
+    <div class="decision-card bajar_video">
+      <div class="dc-label bajar_video">Bajar Video</div>
+      <div class="dc-pct" id="pct-bajar">—</div>
+      <div class="dc-count" id="cnt-bajar">cargando…</div>
+      <div class="dc-bar"><div class="dc-bar-fill" id="bar-bajar" style="width:0%"></div></div>
+    </div>
+    <div class="decision-card mantener">
+      <div class="dc-label mantener">Mantener</div>
+      <div class="dc-pct" id="pct-mantener">—</div>
+      <div class="dc-count" id="cnt-mantener">cargando…</div>
+      <div class="dc-bar"><div class="dc-bar-fill" id="bar-mantener" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Gráficas: timeline + plataformas -->
+  <div class="chart-row">
+    <div class="section-card">
+      <div class="section-title">Publicaciones por hora del evento</div>
+      <canvas id="chart-timeline" height="200"></canvas>
+    </div>
+    <div class="section-card">
+      <div class="section-title">Distribución por plataforma</div>
+      <canvas id="chart-plataforma" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Semáforo + Top cuentas sospechosas -->
+  <div class="data-row">
+    <div class="section-card">
+      <div class="section-title">Semáforo de confiabilidad</div>
+      <div id="semaforo-contenido">
+        <div class="skel" style="width:100%; height:12px; margin-bottom:16px;"></div>
+        <div class="skel" style="width:90%"></div>
+        <div class="skel" style="width:85%"></div>
+        <div class="skel" style="width:75%"></div>
+      </div>
+    </div>
+    <div class="section-card" style="overflow-x:auto;">
+      <div class="section-title">Top 10 cuentas más sospechosas</div>
+      <table class="data-table" id="tabla-cuentas">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Perfil</th>
+            <th>Sospecha prom.</th>
+            <th>Decisión</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-cuentas">
+          <tr><td colspan="4" style="color:var(--slate); text-align:center; padding:20px;">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Top publicaciones sospechosas -->
+  <div class="section-card" style="margin-bottom:16px; overflow-x:auto;">
+    <div class="section-title">Top 10 publicaciones más sospechosas</div>
+    <table class="data-table" id="tabla-pubs">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Plataforma</th>
+          <th>Perfil</th>
+          <th>Texto</th>
+          <th>Sospecha</th>
+          <th>Confiabilidad</th>
+          <th>Decisión</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-pubs">
+        <tr><td colspan="8" style="color:var(--slate); text-align:center; padding:20px;">Cargando…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════════
+     CHATBOT
+═══════════════════════════════════════════════════════════ -->
+<button id="chat-trigger" onclick="toggleChat()">
+  <span>💬</span> Asistente
+</button>
+
+<div id="chat-panel">
+  <div class="chat-header">
+    Asistente — Caso Kai Duarte
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div id="chat-mensajes"></div>
+  <div class="chat-chips" id="chat-chips">
+    <span class="chip" onclick="enviarChip('¿Cómo funciona el sistema?')">¿Cómo funciona?</span>
+    <span class="chip" onclick="enviarChip('¿Qué es el Indice_Sospecha?')">Índice Sospecha</span>
+    <span class="chip" onclick="enviarChip('¿Por qué recomienda cancelar?')">¿Por qué cancelar?</span>
+    <span class="chip" onclick="enviarChip('¿Cuántos bots hay?')">Bots detectados</span>
+    <span class="chip" onclick="enviarChip('¿Por qué no Machine Learning?')">¿Sin ML?</span>
+  </div>
+  <div class="chat-input-row">
+    <input id="chat-input" type="text" placeholder="Escribe tu pregunta…"
+      onkeydown="if(event.key==='Enter') enviarMensaje()" />
+    <button id="chat-send" onclick="enviarMensaje()">Enviar</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════════════════ -->
+<script>
+/* ─────────────────────────────────────────────────────────
+   CONFIGURACIÓN SUPABASE
+───────────────────────────────────────────────────────── */
+const SUPABASE_URL      = 'https://vuczxmesylxlltlsabpo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1Y3p4bWVzeWx4bGx0bHNhYnBvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzNTk2NDcsImV4cCI6MjEwMzkzNTY0N30.h3GIjP-fIXyoWauS1J9vRx5okIHoxgZ9cCgm_q7OXhk';
+
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ─────────────────────────────────────────────────────────
+   REFERENCIAS DOM
+───────────────────────────────────────────────────────── */
+const dom = {
+  estadoBar:       document.getElementById('estado-bar'),
+  refreshBtn:      document.getElementById('refresh-btn'),
+  ultimoRefresh:   document.getElementById('ultimo-refresh'),
+  banner:          document.getElementById('veredicto-banner'),
+  bannerDecision:  document.getElementById('veredicto-decision'),
+  bannerSub:       document.getElementById('veredicto-sub'),
+  bannerPct:       document.getElementById('veredicto-pct'),
+  pctC:            document.getElementById('pct-cancelar'),
+  cntC:            document.getElementById('cnt-cancelar'),
+  barC:            document.getElementById('bar-cancelar'),
+  pctB:            document.getElementById('pct-bajar'),
+  cntB:            document.getElementById('cnt-bajar'),
+  barB:            document.getElementById('bar-bajar'),
+  pctM:            document.getElementById('pct-mantener'),
+  cntM:            document.getElementById('cnt-mantener'),
+  barM:            document.getElementById('bar-mantener'),
+  semaforoContenido: document.getElementById('semaforo-contenido'),
+  tbodyCuentas:    document.getElementById('tbody-cuentas'),
+  tbodyPubs:       document.getElementById('tbody-pubs'),
+};
+
+/* ─────────────────────────────────────────────────────────
+   ESTADO DE GRÁFICAS
+───────────────────────────────────────────────────────── */
+let chartTimeline    = null;
+let chartPlataforma  = null;
+
+/* ─────────────────────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────────────────────── */
+function mostrarEstado(msg, tipo = 'aviso') {
+  dom.estadoBar.textContent = msg;
+  dom.estadoBar.className   = tipo === 'error'
+    ? 'error visible'
+    : 'visible';
+}
+
+function limpiarEstado() {
+  dom.estadoBar.className = '';
+}
+
+function formatearHora(label) {
+  if (!label) return '—';
+  const m = label.match(/(\d{2}):(\d{2})$/);
+  return m ? `${m[1]}:${m[2]}` : label;
+}
+
+function badgePerfil(p) {
+  if (!p) return '';
+  const l = p.toLowerCase();
+  if (l.includes('bot'))       return `<span class="badge bot">Bot</span>`;
+  if (l.includes('nueva') || l.includes('new')) return `<span class="badge nueva">Nueva</span>`;
+  if (l.includes('verif'))     return `<span class="badge verificado">Verificado</span>`;
+  if (l.includes('fan'))       return `<span class="badge fan">Fan</span>`;
+  return `<span class="badge anonimo">${p}</span>`;
+}
+
+function badgeDecision(d) {
+  const map = { cancelar: 'Cancelar', bajar_video: 'Bajar Video', mantener: 'Mantener' };
+  return `<span class="badge ${d || ''}">${map[d] || d || '—'}</span>`;
+}
+
+function claseScore(s) {
+  if (s >= 50) return 'score-high';
+  if (s >= 30) return 'score-mid';
+  return 'score-low';
+}
+
+/* ─────────────────────────────────────────────────────────
+   CARGA PRINCIPAL
+───────────────────────────────────────────────────────── */
+async function cargarTodo() {
+  dom.refreshBtn.disabled = true;
+  dom.refreshBtn.textContent = '⏳ Cargando…';
+  limpiarEstado();
+
+  try {
+    await Promise.all([
+      cargarDecisiones(),
+      cargarTimeline(),
+      cargarPlataformas(),
+      cargarSemaforo(),
+      cargarCuentas(),
+      cargarTopPubs(),
+    ]);
+    dom.ultimoRefresh.textContent = 'Actualizado: ' +
+      new Date().toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' });
+    limpiarEstado();
+  } catch (e) {
+    mostrarEstado('No se pudo conectar con Supabase. Verifica que la base de datos esté configurada y los datos cargados.', 'error');
+  }
+
+  dom.refreshBtn.disabled = false;
+  dom.refreshBtn.textContent = '↺ Actualizar';
+}
+
+/* ─────────────────────────────────────────────────────────
+   DECISIONES
+───────────────────────────────────────────────────────── */
+async function cargarDecisiones() {
+  const { data, error } = await sb.rpc('decision_distribucion');
+  if (error || !data || data.length === 0) {
+    mostrarEstado('La función decision_distribucion no respondió. ¿Ya se ejecutó el SQL en Supabase?', 'error');
+    return;
+  }
+
+  const mapa = {};
+  data.forEach(r => { mapa[r.decision] = r; });
+
+  const c = mapa.cancelar    || {};
+  const b = mapa.bajar_video || {};
+  const m = mapa.mantener    || {};
+
+  const pctC = +(c.porcentaje || 0);
+  const pctB = +(b.porcentaje || 0);
+  const pctM = +(m.porcentaje || 0);
+
+  dom.pctC.textContent = pctC.toFixed(1) + '%';
+  dom.cntC.textContent = (c.n_publicaciones || 0).toLocaleString('es-CO') + ' publicaciones';
+  dom.barC.style.width = pctC + '%';
+
+  dom.pctB.textContent = pctB.toFixed(1) + '%';
+  dom.cntB.textContent = (b.n_publicaciones || 0).toLocaleString('es-CO') + ' publicaciones';
+  dom.barB.style.width = pctB + '%';
+
+  dom.pctM.textContent = pctM.toFixed(1) + '%';
+  dom.cntM.textContent = (m.n_publicaciones || 0).toLocaleString('es-CO') + ' publicaciones';
+  dom.barM.style.width = pctM + '%';
+
+  const total = (+c.n_publicaciones||0) + (+b.n_publicaciones||0) + (+m.n_publicaciones||0);
+  actualizarVeredicto(pctC, pctB, pctM, total);
+}
+
+function actualizarVeredicto(pctC, pctB, pctM, total) {
+  const max = Math.max(pctC, pctB, pctM);
+  let decision, icono, sub;
+
+  if (max === pctC) {
+    decision = 'CANCELAR';
+    icono    = '⛔';
+    sub      = `${pctC.toFixed(1)}% de las publicaciones presentan evidencia suficiente. Se recomienda acción contractual.`;
+    dom.banner.className = 'cancelar';
+  } else if (max === pctB) {
+    decision = 'BAJAR EL VIDEO';
+    icono    = '⚠️';
+    sub      = `${pctB.toFixed(1)}% de las publicaciones quedan en zona gris. Se recomienda retirar el contenido sin acciones legales.`;
+    dom.banner.className = 'bajar_video';
+  } else {
+    decision = 'MANTENER';
+    icono    = '✅';
+    sub      = `${pctM.toFixed(1)}% de las publicaciones no muestran evidencia accionable. No se recomienda actuar.`;
+    dom.banner.className = 'mantener';
+  }
+
+  const bannerIcono = dom.banner.querySelector('.veredicto-icono');
+  if (bannerIcono) bannerIcono.textContent = icono;
+  dom.bannerDecision.textContent = decision;
+  dom.bannerSub.textContent      = sub;
+  dom.bannerPct.textContent      = total.toLocaleString('es-CO') + ' publicaciones analizadas';
+}
+
+/* ─────────────────────────────────────────────────────────
+   TIMELINE
+───────────────────────────────────────────────────────── */
+async function cargarTimeline() {
+  const { data, error } = await sb.rpc('publicaciones_por_hora');
+  if (error || !data) return;
+
+  const labels    = data.map(r => formatearHora(r.hora_label));
+  const cancelar  = data.map(r => +(r.n_cancelar    || 0));
+  const bajar     = data.map(r => +(r.n_bajar_video  || 0));
+  const mantener  = data.map(r => +(r.n_mantener     || 0));
+
+  const ctx = document.getElementById('chart-timeline').getContext('2d');
+  if (chartTimeline) chartTimeline.destroy();
+
+  chartTimeline = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Cancelar',
+          data: cancelar,
+          borderColor: '#dc2626',
+          backgroundColor: 'rgba(220,38,38,.1)',
+          fill: true,
+          tension: .35,
+          pointRadius: 3,
+        },
+        {
+          label: 'Bajar video',
+          data: bajar,
+          borderColor: '#ea580c',
+          backgroundColor: 'rgba(234,88,12,.08)',
+          fill: true,
+          tension: .35,
+          pointRadius: 3,
+        },
+        {
+          label: 'Mantener',
+          data: mantener,
+          borderColor: '#16a34a',
+          backgroundColor: 'rgba(22,163,74,.08)',
+          fill: true,
+          tension: .35,
+          pointRadius: 3,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+        tooltip: { bodyFont: { size: 12 } },
+      },
+      scales: {
+        x: { ticks: { font: { size: 10 }, maxRotation: 45 }, grid: { display: false } },
+        y: { beginAtZero: true, ticks: { font: { size: 11 } } },
+      },
+    },
+  });
+}
+
+/* ─────────────────────────────────────────────────────────
+   PLATAFORMAS
+───────────────────────────────────────────────────────── */
+async function cargarPlataformas() {
+  const { data, error } = await sb.rpc('distribucion_plataforma');
+  if (error || !data) return;
+
+  const labels   = data.map(r => r.plataforma || '—');
+  const cancelar = data.map(r => +(r.n_cancelar    || 0));
+  const bajar    = data.map(r => +(r.n_bajar_video  || 0));
+  const mantener = data.map(r => +(r.n_mantener     || 0));
+
+  const ctx = document.getElementById('chart-plataforma').getContext('2d');
+  if (chartPlataforma) chartPlataforma.destroy();
+
+  chartPlataforma = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Cancelar',    data: cancelar, backgroundColor: '#dc2626' },
+        { label: 'Bajar video', data: bajar,    backgroundColor: '#ea580c' },
+        { label: 'Mantener',    data: mantener, backgroundColor: '#16a34a' },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+      },
+      scales: {
+        x: { stacked: true, ticks: { font: { size: 11 } }, grid: { display: false } },
+        y: { stacked: true, beginAtZero: true, ticks: { font: { size: 11 } } },
+      },
+    },
+  });
+}
+
+/* ─────────────────────────────────────────────────────────
+   SEMÁFORO
+───────────────────────────────────────────────────────── */
+const SEMAFORO_COLORES = {
+  '0-20 (Muy baja)':   { fill: '#dc2626', dot: '#dc2626' },
+  '20-40 (Baja)':      { fill: '#ea580c', dot: '#ea580c' },
+  '40-60 (Media)':     { fill: '#facc15', dot: '#ca8a04' },
+  '60-80 (Alta)':      { fill: '#4ade80', dot: '#16a34a' },
+  '80-100 (Muy alta)': { fill: '#22c55e', dot: '#15803d' },
+};
+
+async function cargarSemaforo() {
+  const { data, error } = await sb.rpc('semaforo_confiabilidad');
+  if (error || !data) {
+    dom.semaforoContenido.innerHTML = '<p style="color:var(--slate);font-size:.85rem;">No disponible aún.</p>';
+    return;
+  }
+
+  dom.semaforoContenido.innerHTML = data.map(r => {
+    const col = SEMAFORO_COLORES[r.rango_confiabilidad] || { fill: '#94a3b8', dot: '#64748b' };
+    const pct = +(r.porcentaje || 0);
+    return `
+      <div class="semaforo-item">
+        <div class="semaforo-dot" style="background:${col.dot}"></div>
+        <div class="semaforo-label">${r.rango_confiabilidad}</div>
+        <div class="semaforo-bar-wrap">
+          <div class="semaforo-bar-fill" style="width:${pct}%; background:${col.fill}"></div>
+        </div>
+        <div class="semaforo-count">${(+r.n_publicaciones||0).toLocaleString('es-CO')}</div>
+      </div>`;
+  }).join('');
+}
+
+/* ─────────────────────────────────────────────────────────
+   CUENTAS SOSPECHOSAS
+───────────────────────────────────────────────────────── */
+async function cargarCuentas() {
+  const { data, error } = await sb.rpc('cuentas_sospechosas', { limite: 10 });
+  if (error || !data) {
+    dom.tbodyCuentas.innerHTML = '<tr><td colspan="4" style="color:var(--slate);text-align:center;padding:16px;">No disponible aún.</td></tr>';
+    return;
+  }
+
+  dom.tbodyCuentas.innerHTML = data.slice(0, 10).map(r => `
+    <tr>
+      <td style="font-weight:600;">${r.usuario_handle || '—'}</td>
+      <td>${badgePerfil(r.perfil_usuario)}</td>
+      <td class="${claseScore(+r.sospecha_promedio)}">${(+r.sospecha_promedio||0).toFixed(1)}</td>
+      <td>${badgeDecision(+r.n_cancelar > 0 ? 'cancelar' : +r.n_bajar_video > 0 ? 'bajar_video' : 'mantener')}</td>
+    </tr>`).join('');
+}
+
+/* ─────────────────────────────────────────────────────────
+   TOP PUBLICACIONES SOSPECHOSAS
+───────────────────────────────────────────────────────── */
+async function cargarTopPubs() {
+  const { data, error } = await sb.rpc('top_sospechosas', { limite: 10 });
+  if (error || !data) {
+    dom.tbodyPubs.innerHTML = '<tr><td colspan="8" style="color:var(--slate);text-align:center;padding:16px;">No disponible aún.</td></tr>';
+    return;
+  }
+
+  dom.tbodyPubs.innerHTML = data.map(r => `
+    <tr>
+      <td style="font-size:.78rem; color:var(--slate);">#${r.id_publicacion}</td>
+      <td style="font-weight:600;">${r.usuario_handle || '—'}</td>
+      <td>${r.plataforma || '—'}</td>
+      <td>${badgePerfil(r.perfil_usuario)}</td>
+      <td><div class="text-truncate" title="${(r.texto_truncado||'').replace(/"/g,'&quot;')}">${r.texto_truncado || '—'}</div></td>
+      <td class="${claseScore(+r.indice_sospecha)}">${(+r.indice_sospecha||0).toFixed(1)}</td>
+      <td>${(+r.score_confiabilidad||0).toFixed(1)}</td>
+      <td>${badgeDecision(r.decision)}</td>
+    </tr>`).join('');
+}
+
+/* ─────────────────────────────────────────────────────────
+   CHATBOT — CATÁLOGO INCRUSTADO
+───────────────────────────────────────────────────────── */
+const CATALOGO_CHATBOT = {"meta":{"proyecto":"Cancelado — caso Kai Duarte","dataset":"3.210 publicaciones de X, TikTok, Instagram y Foros anónimos","cortes":{"umbral_mantener":30.0,"umbral_cancelar":50.0},"distribucion":{"mantener_pct":36.4,"bajar_video_pct":25.5,"cancelar_pct":38.1},"version":"1.0"},"intenciones":[{"id":"indice_sospecha_que_es","keywords":["indice sospecha","indice de sospecha","que es el indice","que mide el indice","que es sospecha","score sospecha","score de sospecha","indice suspecha","indice sospecha","que mide el score","para que sirve el indice","como interpreto el indice","que significa el score"],"respuestas":["El Indice_Sospecha es un puntaje de 0 a 100 que se calcula por publicación. Combina 5 señales: el tipo de perfil (peso 35%), la antigüedad invertida de la cuenta (25%), la velocidad de viralización (20%), si el contenido es reciclado (10%) y el tipo de publicación (10%). Un score alto —por encima de 50— activa la recomendación de cancelar. Un score bajo —por debajo de 30— indica mantener.","Es el corazón del sistema: una sola cifra de 0 a 100 por publicación que resume qué tan sospechosa es su fuente y su comportamiento. Lo domina el perfil de la cuenta —vale 35 de los 100 puntos— porque un Bot o una Cuenta_Nueva es estructuralmente menos fiable que una cuenta Verificada. En el dataset de 3.210 registros, la mediana global es 26.8.","El Indice_Sospecha agrega cinco factores en una escala 0-100. El factor más pesado es el perfil del usuario (35%): los bots alcanzan medianas de 82.6 y las cuentas verificadas apenas 19.1. Los cortes —calibrados por perfil, no por percentil— están en 30 (mantener) y 50 (cancelar), produciendo una distribución real: 36.4% mantener / 25.5% bajar video / 38.1% cancelar."]},{"id":"indice_sospecha_formula","keywords":["como se calcula el indice","formula del indice","formula sospecha","como calcula","como se obtiene el score","pesos del indice","pesos del score","formula calculo","que pesa mas en el indice","componentes del indice","factores del indice","variables del indice"],"respuestas":["La fórmula exacta es: Indice_Sospecha = 100 × (0.35×perfil_riesgo + 0.25×antigüedad_invertida + 0.20×velocidad_viral + 0.10×contenido_reciclado + 0.10×tipo_contenido). Cada factor está normalizado en 0-1 antes de ponderar. El perfil vale 35% porque es la señal estructural más directa e imposible de falsear a corto plazo.","Son cinco componentes: 35% perfil de usuario (Bot=1.0, Cuenta_Nueva=0.67, Verificado=0.0), 25% antigüedad invertida de la cuenta (cuenta de 1 día tiene sospecha alta), 20% velocidad de viralización (el percentil de interacciones/minuto), 10% contenido reciclado (idéntico=1.0, posible=0.6, no=0.0), 10% tipo de publicación (transcripción o descripción de captura son más riesgosas que un post original).","Los pesos se eligieron así: 35% al perfil porque bots y cuentas nuevas son la señal más robusta. 25% a la antigüedad invertida, porque una cuenta de 0 días no tiene historial verificable. 20% a la velocidad viral, ya que amplificaciones de más de 24 interacciones/minuto son estadísticamente atípicas (p99 del dataset). 10% a contenido reciclado y 10% al tipo de fuente como señales complementarias."]},{"id":"score_confiabilidad","keywords":["score confiabilidad","confiabilidad","que es la confiabilidad","como se calcula la confiabilidad","score de confiabilidad","como funciona la confiabilidad","que mide la confiabilidad","score confiable","indice confiabilidad","confiabilidad score","confiabilidad del sistema"],"respuestas":["El Score_Confiabilidad es también 0-100 por publicación, pero mide señales positivas. Se calcula con: 40% antigüedad de cuenta (percentil rank directo), 40% corroboraciones independientes (cuántas fuentes sin conexión entre sí describen el mismo hecho) y 20% tipo de publicación confiable (post original vale 1.0, comentario 0.67, repost 0.33, transcripción 0.0). Mediana global: 52.0.","Es importante aclarar que Score_Confiabilidad NO es 100 menos Indice_Sospecha. Una cuenta verificada y antigua puede tener bots amplificando su contenido, lo que dispara la sospecha sin bajar su confiabilidad. Las cuentas Verificadas tienen mediana de confiabilidad de 60.6; los bots apenas 23.4.","El factor más potente de confiabilidad son las corroboraciones independientes (peso 40%): si múltiples usuarios sin conexión aparente describen el mismo hecho, la probabilidad de fabricación coordinada cae drásticamente. La publicación más confiable del dataset es la de @RedFactCheckCo (ID 1122, verificado con 3.000 días de antigüedad), con Score_Confiabilidad de 98.1 e Indice_Sospecha de solo 1.5."]},{"id":"decision_cancelar","keywords":["cancelar","por que cancelar","cuando cancelar","que significa cancelar","romper contrato","cancelacion","cuantos cancelar","porcentaje cancelar","cuantas publicaciones cancelar","cuando recomienda cancelar"],"respuestas":["El sistema recomienda 'cancelar' cuando el Indice_Sospecha supera 50 —umbral calibrado para capturar el 97.8% de los bots y el 82.1% de las cuentas nuevas. Eso representa el 38.1% de las 3.210 publicaciones. Esta decisión significa que las pruebas son confiables y suficientes para actuar: se justifica romper el contrato con el creador o la marca.","La decisión 'cancelar' es la más extrema: aplica a publicaciones con Indice_Sospecha > 50 y concentra el 97.8% de los bots (mediana de sospecha 82.6) y el 82.1% de las cuentas nuevas. El 38.1% del dataset cae en esta categoría. En el contexto del caso Kai Duarte, significa que la plataforma tiene evidencia suficiente para romper contratos con PulsoTech, UrbanKrew o NovaVolt.","Cuando el sistema dice 'cancelar' (38.1% de los registros), la interpretación es: hay suficientes señales consistentes y confiables —perfil de bot, cuenta muy nueva, velocidad viral anómala— para que la acción sea justificable públicamente. El umbral de 50 se eligió porque separa a Anónimo (mediana 48.9) de Cuenta_Nueva (57.2) — el salto natural en los datos."]},{"id":"decision_bajar_video","keywords":["bajar video","bajar el video","retirar contenido","bajar la publicacion","cuando bajar","que significa bajar","porcentaje bajar","bajar video cuantos","eliminar video","retirar video","quitar el video","remover contenido","cuando se baja el video","decision bajar video","zone media decision","que recomienda bajar"],"respuestas":["La decisión 'bajar_video' aplica cuando el Indice_Sospecha está entre 30 y 50 —la zona gris calibrada para absorber la ambigüedad del perfil Anónimo. Representa el 25.5% del dataset. La evidencia justifica retirar el contenido para detener la desinformación, pero no es suficientemente sólida para romper contratos.","El 25.5% de publicaciones caen en la zona de 'bajar_video' (score entre 30 y 50). Es la decisión de término medio: hay señales de alerta —velocidad un poco elevada, perfil anónimo— pero sin la contundencia de un bot o cuenta de 0 días. El 52.5% de los perfiles Anónimos queda en esta zona, que es exactamente donde debe estar un perfil ambiguo.","Esta decisión refleja incertidumbre controlada: el sistema detecta suficientes señales para no ignorar la publicación (no 'mantener'), pero no las suficientes para una acción legal (no 'cancelar'). Se traduce en: retirar el video del trending, no en rescindir contratos. Es la salida más conservadora que aun así protege a las marcas."]},{"id":"decision_mantener","keywords":["mantener","dejar que siga","no hacer nada","cuando mantener","que significa mantener","porcentaje mantener","pruebas debiles","cuantos mantener","contenido legitimo","publicacion legitima","cuando no actuar"],"respuestas":["La decisión 'mantener' aplica cuando el Indice_Sospecha es menor a 30 —umbral elegido porque el p75 de Fan_Antiguo es 27.3 y el p75 de Verificado es 23.9, ambos por debajo de este corte. Representa el 36.4% del dataset. Significa que las pruebas son demasiado débiles o sin corroboración suficiente para actuar.","El 36.4% de publicaciones caen en 'mantener'. Las cuentas Verificadas son las protagonistas: el 93.8% de sus publicaciones queda en esta categoría —con mediana de Indice_Sospecha de apenas 19.1. También el 84.8% de los Fan_Antiguo. El umbral de 30 se eligió precisamente para proteger a estos perfiles de falsos positivos.","Cuando el sistema dice 'mantener', no significa que Kai Duarte sea inocente —significa que esas publicaciones específicas no aportan evidencia accionable. Muchas pueden ser opiniones, contenido legítimo o simplemente ruido. El sistema filtra el ruido para que la decisión final se base solo en los registros con score alto."]},{"id":"cuentas_bot_sospechosas","keywords":["cuantos bots","bots sospechosos","cuantas cuentas sospechosas","bot sospechoso","cuentas nuevas sospechosas","cuantos bots hay","hay bots","detecto bots","cuantas cuentas bot","bots en el dataset","cuentas falsas","cuantas cuentas falsas"],"respuestas":["El dataset contiene 232 publicaciones de perfiles tipo Bot_Sospechoso —el 7.2% del total. El 100% de ellas cae en la decisión 'cancelar', con una mediana de Indice_Sospecha de 82.6 sobre 100. Además, hay 608 publicaciones de Cuenta_Nueva, de las cuales el 98.7% también cae en 'cancelar' con mediana 57.2.","Hay 232 bots y 608 cuentas nuevas en el dataset. Los bots son los más contaminantes: score mediano de 82.6, y el 100% activa 'cancelar'. Las cuentas nuevas siguen muy de cerca: mediana de 57.2 y 98.7% en 'cancelar'. Combinados suman 840 publicaciones —el 26% del dataset— que casi en su totalidad recomiendan acción inmediata.","Los bots son la señal más clara del caso: 232 publicaciones con Indice_Sospecha mediano de 82.6, todas recomendando 'cancelar'. Su patrón típico: cuenta creada ayer, velocidad de viralización en el percentil 95+, y texto repetitivo como '#CancelenAKai'. El sistema los detecta automáticamente sin necesidad de analizar el contenido del texto."]},{"id":"publicacion_mas_sospechosa","keywords":["publicacion mas sospechosa","registro mas sospechoso","cual es la mas sospechosa","mayor indice sospecha","score mas alto","mas sospechoso del dataset","el peor registro","el registro mas raro","publicacion con mayor score","cual tiene mas sospecha","ejemplo sospechoso","caso mas sospechoso"],"respuestas":["La publicación más sospechosa del dataset es el ID 2440, del usuario @despiertaya_760 en X. Es un Bot_Sospechoso que hizo un Repost con texto '#CancelenAKai — KAI ES CULPABLE', con 0 días de antigüedad de cuenta. Indice_Sospecha: 85.9 sobre 100. Activó los cinco factores de riesgo y aterrizó en la decisión 'cancelar'.","El record de sospecha lo tiene @despiertaya_760 (ID 2440): bot sospechoso, cuenta de 0 días, repost en X con velocidad de 23.9 interacciones por minuto. Score 85.9 de 100 —el máximo del dataset. No hay corroboraciones independientes y el contenido es amplificación pura, no evidencia original.","ID 2440 (@despiertaya_760): Indice_Sospecha de 85.9, el más alto de los 3.210 registros. ¿Por qué tan alto? El perfil Bot_Sospechoso ya aporta 35 puntos. La cuenta de 0 días pone la antigüedad invertida al máximo. Y la velocidad viral en percentil alto agrega otros 20 puntos. Es el caso de manual para explicar cómo funciona el sistema."]},{"id":"publicacion_mas_confiable","keywords":["publicacion mas confiable","registro mas confiable","cual es la mas confiable","mayor confiabilidad","score confiabilidad mas alto","mas confiable del dataset","el mejor registro","publicacion legitima ejemplo","cual tiene mas confiabilidad","ejemplo confiable","caso mas confiable","fuente mas confiable"],"respuestas":["La publicación más confiable es la del ID 1122, de @RedFactCheckCo en X —un perfil Verificado con 3.000 días de antigüedad (más de 8 años). Post original que pedía 'cautela: varias publicaciones repiten el mismo texto en minutos'. Score_Confiabilidad: 98.1. Indice_Sospecha: 1.5 —el mínimo del dataset.","@RedFactCheckCo (ID 1122): Score_Confiabilidad de 98.1 y un Indice_Sospecha de apenas 1.5. Es la antítesis del bot: cuenta verificada, 8+ años de historial, post original en primera persona, con velocidad de viralización baja. Irónicamente, su publicación advertía sobre el patrón de copia que el sistema detectó en los bots.","El mejor score de confiabilidad (98.1) es para el ID 1122 de @RedFactCheckCo: verificado, 3.000 días de cuenta, post original, sin contenido reciclado. Indice_Sospecha de 1.5 —el más bajo de los 3.210 registros. Contrasta directamente con el ID 2440 (score 85.9): juntos ilustran perfectamente el rango completo del sistema."]},{"id":"hashtags_dominantes","keywords":["hashtags","que hashtags","hashtag mas usado","hashtag dominante","etiquetas","trending","que tendencias","tags mas usados","cuales son los hashtags","que etiquetas usan","hastag","hastags","tendencias del caso"],"respuestas":["Los 5 hashtags más frecuentes del caso son: #EvaluandoLaSituacion (389 publicaciones), #QueDijoKai (383), #Cancelado (368), #KaiDuarte (357) y #CancelenAKai (319). También aparecen #JusticiaParaKai (276) y #VerificaAntesDeCompartir (102) —este último, curiosamente, es el que piden los propios verificadores como @RedFactCheckCo.","El caso generó dos frentes de hashtags claramente opuestos: los acusadores (#CancelenAKai con 319, #KaiMentiroso con 113, #FueraKai con 99) y los defensores (#JusticiaParaKai con 276, #YoLeCreoAKai con 97). Los neutrales (#EvaluandoLaSituacion con 389, #VerificaAntesDeCompartir con 102) dominan en volumen —lo que indica que la controversia aún no estaba resuelta al momento del análisis.","Diez hashtags principales: #EvaluandoLaSituacion (389), #QueDijoKai (383), #Cancelado (368), #KaiDuarte (357), #CancelenAKai (319), #JusticiaParaKai (276), #KaiMentiroso (113), #VerificaAntesDeCompartir (102), #FueraKai (99) y #YoLeCreoAKai (97). El volumen total de hashtags refleja la polarización: cada bando sumó cientos de menciones en menos de 7 horas."]},{"id":"marcas_involucradas","keywords":["marcas","cuantas marcas","que marcas","marcas involucradas","patrocinadores","sponsors","marcas patrocinadoras","pulsotech","urbankrew","novavolt","que empresas","empresas involucradas","cuantos patrocinadores"],"respuestas":["Hay 3 marcas patrocinadoras mencionadas en el dataset: PulsoTech con 64 menciones, UrbanKrew con 60 y NovaVolt con 57. Las tres tienen presencia en X con cuentas Verificadas (por ejemplo @novavolt_oficial y @urbankrew_oficial) y sus publicaciones institucionales tienen Indice_Sospecha muy bajo —son las más confiables del lado corporativo.","Las tres marcas son PulsoTech, UrbanKrew y NovaVolt —suman 181 menciones directas en el dataset. Sus cuentas oficiales están verificadas y emitieron declaraciones similares en las primeras horas ('Estamos evaluando la situación'). El sistema las clasifica con alta confiabilidad y baja sospecha, lo que significa que sus publicaciones no generan señales de alerta.","PulsoTech (64 menciones), UrbanKrew (60) y NovaVolt (57) son los tres patrocinadores en riesgo. El sistema las incluye en el análisis porque sus contratos con Kai Duarte son el objeto de la decisión final. Sus publicaciones institucionales están en zona 'mantener', lo que significa que la presión para actuar viene de otras fuentes, no de sus propias cuentas."]},{"id":"contenido_reciclado_deteccion","keywords":["contenido reciclado","como detectaron el reciclado","deteccion reciclado","como saben que es reciclado","que es contenido reciclado","contenido repetido","publicaciones repetidas","textos copiados","reciclaje de contenido","como identificaron reciclado","identico a publicacion anterior","copiar contenido"],"respuestas":["El dataset incluye una columna 'Contenido_Reciclado' con tres valores: 'No' (3.020 registros, 94.1%), 'Sí (idéntico a publicación de 2023 sobre otro creador)' (121 registros, 3.8%) y 'Posible (similar a una publicación anterior)' (69 registros, 2.1%). En total, el 5.9% del dataset es contenido reciclado —tomado de otro escándalo de 2023 y reutilizado contra Kai Duarte.","La detección de contenido reciclado fue parte del preprocesamiento del dataset: 121 publicaciones son texto idéntico al de un escándalo de 2023 con otro creador. Otras 69 son 'posiblemente similares'. El sistema les asigna un factor de riesgo de 1.0 y 0.6 respectivamente (0.0 si no hay reciclado), que contribuye al Indice_Sospecha con peso del 10%.","El 5.9% del dataset —190 publicaciones— fue marcado como contenido reciclado. La señal más fuerte son los 121 registros idénticos a publicaciones de 2023, lo que indica que alguien reutilizó deliberadamente contenido de otro escándalo para amplificar el caso de Kai Duarte. El sistema captura esto en el factor f4_reciclado con un peso del 10% en el Indice_Sospecha."]},{"id":"origen_datos","keywords":["de donde vienen los datos","origen de los datos","que datos usaron","dataset","de donde sacan los datos","fuente de datos","base de datos","csv","de donde son los datos","cuantos datos hay","cuantos registros","cuantas publicaciones hay"],"respuestas":["Los datos vienen de un CSV con 3.210 publicaciones de cuatro plataformas: X (1.442 registros, 44.9%), TikTok (894, 27.8%), Instagram (667, 20.8%) y Foros anónimos (207, 6.4%). El CSV se cargó a Supabase (PostgreSQL) sin modificar —flujo ELT puro. Todas las transformaciones y scores se calcularon con SQL dentro de la base de datos.","El dataset son 3.210 publicaciones capturadas en un período de aproximadamente 7 horas (desde el clip viral a las 11:47 p.m. hasta las 6:00 a.m.). Incluye publicaciones de X, TikTok, Instagram y foros anónimos. La carga fue directa del CSV crudo a Supabase —ningún paso de limpieza en Python, todo se resolvió con SQL en la base.","3.210 registros, 17 columnas, cuatro plataformas. La arquitectura es ELT: el CSV va directo a Supabase sin tocar, y las fórmulas del Indice_Sospecha y el Score_Confiabilidad viven como funciones SQL dentro de Supabase. Esto garantiza que el dashboard consulte siempre los cálculos actualizados sin depender de un script Python corriendo en paralelo."]},{"id":"por_que_no_machine_learning","keywords":["por que no machine learning","por que no ml","no usaron ia","no usaron inteligencia artificial","por que no usaron modelo","por que sin modelo","por que reglas","por que no clasificador","por que no red neuronal","no usaron ml","sin machine learning","por que reglas simples","enfoque basado en reglas"],"respuestas":["Tres razones concretas: primero, no hay etiquetas de entrenamiento —nadie sabe de antemano cuáles publicaciones son falsas. Segundo, el tiempo de ejecución es de 4 horas —no hay tiempo para entrenar, validar y desplegar un modelo. Tercero, las reglas basadas en percentiles son auditables: el jurado puede preguntarle a cualquier persona 'por qué este registro tiene score 82' y la respuesta es directa y verificable.","Los enfoques de ML supervisado requieren datos etiquetados; los no supervisados (clustering) son difíciles de explicar en una demo de pitch. Un score ponderado con percentiles produce exactamente el mismo efecto discriminatorio —separa bots de verificados con una diferencia de 63.5 puntos en mediana— con cero costo de entrenamiento y máxima transparencia.","La decisión fue pragmática: en 4 horas de reto, un modelo de ML agrega complejidad sin añadir valor visible. El Indice_Sospecha ya discrimina perfectamente: Bot_Sospechoso con mediana 82.6 vs Verificado con mediana 19.1 —una separación de 63 puntos. Eso es lo que necesita el jurado para confiar en el sistema, y se logra con cinco features ponderadas y dos cortes de percentil."]},{"id":"como_funciona_sistema","keywords":["como funciona el sistema","como funciona","explica el sistema","que hace el sistema","como trabaja el sistema","arquitectura del sistema","flujo del sistema","como opera","que hace la herramienta","explica la herramienta","como analiza","que analiza el sistema","pipeline del sistema"],"respuestas":["El sistema sigue tres pasos: 1) Carga del CSV crudo de 3.210 publicaciones a Supabase (PostgreSQL) sin modificar nada. 2) Cálculo de Indice_Sospecha y Score_Confiabilidad con SQL dentro de Supabase —usando funciones y vistas que procesan las 17 columnas del dataset. 3) Dashboard HTML que consulta Supabase en tiempo real y muestra los scores, la distribución de decisiones y el chat de demo.","Es un pipeline ELT (Extract, Load, Transform) donde la 'T' vive en la base de datos, no en el cliente. El CSV entra a Supabase tal cual, y SQL hace todo el trabajo pesado: calcula los percentiles, pondera las features y asigna las tres decisiones. El resultado se expone en un dashboard interactivo que cualquier decisor puede consultar sin saber SQL.","El flujo completo: CSV con 3.210 publicaciones de X, TikTok, Instagram y foros → carga directa a Supabase → SQL calcula Indice_Sospecha (0-100) y Score_Confiabilidad (0-100) por publicación → cortes calibrados por criterio de perfil (30 y 50) generan tres zonas: mantener (36.4%), bajar_video (25.5%), cancelar (38.1%) → dashboard HTML + chatbot de demo para presentar al jurado."]},{"id":"por_que_registro_sospechoso","keywords":["por que este registro es sospechoso","por que tiene score alto","por que score alto","por que es sospechoso","que lo hace sospechoso","explica el score alto","que significa score 85","por que indice alto","por que califica como cancelar","que hizo para tener ese score","por que tiene ese numero","como llego a ese score"],"respuestas":["Tomemos el caso concreto del ID 2440 (@despiertaya_760, score 85.9): el perfil es Bot_Sospechoso —aporta 35 puntos de entrada. La cuenta tiene 0 días de antigüedad —la antigüedad invertida llega a su máximo, aportando 25 puntos más. La velocidad de viralización está en percentil alto. Esos tres factores solos ya superan ampliamente el corte de 50 para 'cancelar'. El tipo de publicación (Repost) agrega un poco más.","Un registro llega a score alto porque acumula puntos en múltiples factores a la vez. El ejemplo más extremo es ID 2440: Bot (35 pts) + cuenta de 0 días (25 pts) + velocidad viral alta (20 pts) = 80 puntos antes de considerar el tipo de contenido. Con el umbral de cancelar en 50, este registro lo supera por 35 puntos —no hay ambigüedad posible.","La pregunta clave es siempre: ¿qué factores se activaron? Para un registro con score alto típicamente son: perfil de riesgo (Bot o Cuenta_Nueva, vale 35%), cuenta muy reciente (antigüedad invertida alta, vale 25%) y velocidad de viralización en el top del percentil (vale 20%). Esos tres juntos ya superan 60 puntos, muy por encima del corte de 35 para 'cancelar'."]}],"fallback":["Esa pregunta está fuera del alcance de esta demo, pero puedo explicarte el Indice_Sospecha, el Score_Confiabilidad, cómo se detectó el contenido reciclado, por qué no se usó Machine Learning, o qué significan las tres decisiones del sistema.","No tengo esa información disponible en este demo. Lo que sí puedo mostrarte es cómo el sistema clasifica las 3.210 publicaciones en tres decisiones (cancelar 38.1%, bajar_video 25.5%, mantener 36.4%), o los detalles de cualquiera de los dos scores. ¿Quieres que te explique alguno?","Buena pregunta —está fuera del guión de la demo. Pero puedo darte cifras concretas sobre los bots (232 publicaciones, mediana de sospecha 82.6), los hashtags dominantes del caso, las tres marcas patrocinadoras involucradas, o la publicación más confiable del dataset. ¿Por dónde empezamos?"]};
+
+/* ─────────────────────────────────────────────────────────
+   CHATBOT — MOTOR
+───────────────────────────────────────────────────────── */
+const ChatbotMatcher = (() => {
+  let _catalogo = null;
+  const UMBRAL  = 0.72;
+
+  function _normalizar(t) {
+    if (typeof t !== 'string') return '';
+    return t.toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+
+  function _similitud(a, b) {
+    if (!a || !b) return 0;
+    if (a === b) return 1;
+    const la = a.length, lb = b.length;
+    if (Math.max(la, lb) / (Math.min(la, lb) || 1) > 3) return 0;
+    const dp = Array.from({ length: la + 1 }, () => new Array(lb + 1).fill(0));
+    let lcs = 0;
+    for (let i = 1; i <= la; i++)
+      for (let j = 1; j <= lb; j++)
+        if (a[i-1] === b[j-1]) { dp[i][j] = dp[i-1][j-1] + 1; if (dp[i][j] > lcs) lcs = dp[i][j]; }
+    return (2 * lcs) / (la + lb);
+  }
+
+  function _pick(lista) {
+    if (!lista || !lista.length) return null;
+    return lista[Math.floor(Math.random() * lista.length)];
+  }
+
+  function responder(texto) {
+    if (!_catalogo) return 'El asistente aún no está listo. Recarga la página.';
+    if (!texto || !texto.trim()) return _fallback();
+    const norm = _normalizar(texto);
+    const ints = _catalogo.intenciones || [];
+
+    let mejorExacta = null, largoMax = 0;
+    for (const it of ints)
+      for (const kw of (it.keywords || []))  {
+        const n = _normalizar(kw);
+        if (n && norm.includes(n) && n.length > largoMax) { largoMax = n.length; mejorExacta = it; }
+      }
+    if (mejorExacta) return _pick(mejorExacta.respuestas) || _fallback();
+
+    let mejorIt = null, mejorScore = 0;
+    for (const it of ints)
+      for (const kw of (it.keywords || [])) {
+        const n = _normalizar(kw);
+        if (!n) continue;
+        let s = Math.max(_similitud(n, norm), (() => {
+          if (norm.length < n.length) return 0;
+          let best = 0;
+          for (let i = 0; i <= norm.length - n.length; i += 2) {
+            const v = _similitud(n, norm.slice(i, i + n.length));
+            if (v > best) best = v;
+          }
+          return best;
+        })());
+        if (s > mejorScore) { mejorScore = s; mejorIt = it; }
+      }
+    if (mejorIt && mejorScore >= UMBRAL) return _pick(mejorIt.respuestas) || _fallback();
+    return _fallback();
+  }
+
+  function _fallback() {
+    const f = _catalogo && _catalogo.fallback;
+    return _pick(f) || 'No tengo ese dato en este demo. Prueba preguntando por el Índice de Sospecha o las decisiones del sistema.';
+  }
+
+  function init(cat) { _catalogo = cat; }
+  return { init, responder };
+})();
+
+ChatbotMatcher.init(CATALOGO_CHATBOT);
+
+/* ─────────────────────────────────────────────────────────
+   CHATBOT — UI
+───────────────────────────────────────────────────────── */
+let chatAbierto = false;
+
+function toggleChat() {
+  chatAbierto = !chatAbierto;
+  document.getElementById('chat-panel').classList.toggle('open', chatAbierto);
+  if (chatAbierto && document.getElementById('chat-mensajes').children.length === 0) {
+    agregarMsg('Hola. Puedo explicarte cómo funciona el sistema de análisis del caso Kai Duarte: el Indice_Sospecha, el Score_Confiabilidad, las tres decisiones, y los datos del dataset. ¿Por dónde empezamos?', 'bot');
+  }
+}
+
+function agregarMsg(texto, tipo) {
+  const cont = document.getElementById('chat-mensajes');
+  const div  = document.createElement('div');
+  div.className = 'msg ' + tipo;
+  div.textContent = texto;
+  cont.appendChild(div);
+  cont.scrollTop = cont.scrollHeight;
+}
+
+function enviarMensaje() {
+  const inp   = document.getElementById('chat-input');
+  const texto = inp.value.trim();
+  if (!texto) return;
+  agregarMsg(texto, 'user');
+  inp.value = '';
+  setTimeout(() => agregarMsg(ChatbotMatcher.responder(texto), 'bot'), 320);
+}
+
+function enviarChip(texto) {
+  agregarMsg(texto, 'user');
+  setTimeout(() => agregarMsg(ChatbotMatcher.responder(texto), 'bot'), 320);
+  if (!chatAbierto) {
+    chatAbierto = true;
+    document.getElementById('chat-panel').classList.add('open');
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   INICIO
+───────────────────────────────────────────────────────── */
+cargarTodo();
+</script>
+</body>
+</html>
