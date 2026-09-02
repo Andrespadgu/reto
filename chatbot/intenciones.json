@@ -1,0 +1,375 @@
+{
+  "meta": {
+    "proyecto": "Cancelado — caso Kai Duarte",
+    "dataset": "3.210 publicaciones de X, TikTok, Instagram y Foros anónimos",
+    "cortes": {
+      "p33": 21.0,
+      "p66": 35.0
+    },
+    "version": "1.0"
+  },
+  "intenciones": [
+    {
+      "id": "indice_sospecha_que_es",
+      "keywords": [
+        "indice sospecha",
+        "indice de sospecha",
+        "que es el indice",
+        "que mide el indice",
+        "que es sospecha",
+        "score sospecha",
+        "score de sospecha",
+        "indice suspecha",
+        "indice sospecha",
+        "que mide el score",
+        "para que sirve el indice",
+        "como interpreto el indice",
+        "que significa el score"
+      ],
+      "respuestas": [
+        "El Indice_Sospecha es un puntaje de 0 a 100 que se calcula por publicación. Combina 5 señales: el tipo de perfil (peso 35%), la antigüedad invertida de la cuenta (25%), la velocidad de viralización (20%), si el contenido es reciclado (10%) y el tipo de publicación (10%). Un score alto —por encima de 35— activa la recomendación de cancelar. Un score bajo —por debajo de 21— indica mantener.",
+        "Es el corazón del sistema: una sola cifra de 0 a 100 por publicación que resume qué tan sospechosa es su fuente y su comportamiento. Lo domina el perfil de la cuenta —vale 35 de los 100 puntos— porque un Bot o una Cuenta_Nueva es estructuralmente menos fiable que una cuenta Verificada. En el dataset de 3.210 registros, la mediana global es 26.8.",
+        "El Indice_Sospecha agrega cinco factores en una escala 0-100. El factor más pesado es el perfil del usuario (35%): los bots alcanzan medianas de 82.6 y las cuentas verificadas apenas 19.1. Los cortes en el percentil 33 (score=21) y el percentil 66 (score=35) dividen el dataset en tres decisiones aproximadamente iguales."
+      ]
+    },
+    {
+      "id": "indice_sospecha_formula",
+      "keywords": [
+        "como se calcula el indice",
+        "formula del indice",
+        "formula sospecha",
+        "como calcula",
+        "como se obtiene el score",
+        "pesos del indice",
+        "pesos del score",
+        "formula calculo",
+        "que pesa mas en el indice",
+        "componentes del indice",
+        "factores del indice",
+        "variables del indice"
+      ],
+      "respuestas": [
+        "La fórmula exacta es: Indice_Sospecha = 100 × (0.35×perfil_riesgo + 0.25×antigüedad_invertida + 0.20×velocidad_viral + 0.10×contenido_reciclado + 0.10×tipo_contenido). Cada factor está normalizado en 0-1 antes de ponderar. El perfil vale 35% porque es la señal estructural más directa e imposible de falsear a corto plazo.",
+        "Son cinco componentes: 35% perfil de usuario (Bot=1.0, Cuenta_Nueva=0.67, Verificado=0.0), 25% antigüedad invertida de la cuenta (cuenta de 1 día tiene sospecha alta), 20% velocidad de viralización (el percentil de interacciones/minuto), 10% contenido reciclado (idéntico=1.0, posible=0.6, no=0.0), 10% tipo de publicación (transcripción o descripción de captura son más riesgosas que un post original).",
+        "Los pesos se eligieron así: 35% al perfil porque bots y cuentas nuevas son la señal más robusta. 25% a la antigüedad invertida, porque una cuenta de 0 días no tiene historial verificable. 20% a la velocidad viral, ya que amplificaciones de más de 24 interacciones/minuto son estadísticamente atípicas (p99 del dataset). 10% a contenido reciclado y 10% al tipo de fuente como señales complementarias."
+      ]
+    },
+    {
+      "id": "score_confiabilidad",
+      "keywords": [
+        "score confiabilidad",
+        "confiabilidad",
+        "que es la confiabilidad",
+        "como se calcula la confiabilidad",
+        "score de confiabilidad",
+        "como funciona la confiabilidad",
+        "que mide la confiabilidad",
+        "score confiable",
+        "indice confiabilidad",
+        "confiabilidad score",
+        "confiabilidad del sistema"
+      ],
+      "respuestas": [
+        "El Score_Confiabilidad es también 0-100 por publicación, pero mide señales positivas. Se calcula con: 40% antigüedad de cuenta (percentil rank directo), 40% corroboraciones independientes (cuántas fuentes sin conexión entre sí describen el mismo hecho) y 20% tipo de publicación confiable (post original vale 1.0, comentario 0.67, repost 0.33, transcripción 0.0). Mediana global: 52.0.",
+        "Es importante aclarar que Score_Confiabilidad NO es 100 menos Indice_Sospecha. Una cuenta verificada y antigua puede tener bots amplificando su contenido, lo que dispara la sospecha sin bajar su confiabilidad. Las cuentas Verificadas tienen mediana de confiabilidad de 60.6; los bots apenas 23.4.",
+        "El factor más potente de confiabilidad son las corroboraciones independientes (peso 40%): si múltiples usuarios sin conexión aparente describen el mismo hecho, la probabilidad de fabricación coordinada cae drásticamente. La publicación más confiable del dataset es la de @RedFactCheckCo (ID 1122, verificado con 3.000 días de antigüedad), con Score_Confiabilidad de 98.1 e Indice_Sospecha de solo 1.5."
+      ]
+    },
+    {
+      "id": "decision_cancelar",
+      "keywords": [
+        "cancelar",
+        "por que cancelar",
+        "cuando cancelar",
+        "que significa cancelar",
+        "romper contrato",
+        "cancelacion",
+        "cuantos cancelar",
+        "porcentaje cancelar",
+        "cuantas publicaciones cancelar",
+        "cuando recomienda cancelar"
+      ],
+      "respuestas": [
+        "El sistema recomienda 'cancelar' cuando el Indice_Sospecha supera el percentil 66 del dataset, es decir, score mayor a 35.0. Eso representa el 34% de las 3.210 publicaciones —aproximadamente 1.091 registros. Esta decisión significa que las pruebas son confiables y suficientes para actuar: se justifica romper el contrato con el creador o la marca.",
+        "La decisión 'cancelar' es la más extrema: aplica a publicaciones con Indice_Sospecha > 35 y concentra el 100% de los bots (mediana de sospecha 82.6) y el 98.7% de las cuentas nuevas. El 34% del dataset cae en esta categoría. En el contexto del caso Kai Duarte, significa que la plataforma tiene evidencia suficiente para romper contratos con PulsoTech, UrbanKrew o NovaVolt.",
+        "Cuando el sistema dice 'cancelar' (34% de los registros), la interpretación es: hay suficientes señales consistentes y confiables —perfil de bot, cuenta muy nueva, velocidad viral anómala— para que la acción sea justificable públicamente. No se basa en una sola publicación sino en el patrón agregado por encima del percentil 66 (score=35)."
+      ]
+    },
+    {
+      "id": "decision_bajar_video",
+      "keywords": [
+        "bajar video",
+        "bajar el video",
+        "retirar contenido",
+        "bajar la publicacion",
+        "cuando bajar",
+        "que significa bajar",
+        "porcentaje bajar",
+        "bajar video cuantos",
+        "eliminar video",
+        "retirar video",
+        "quitar el video",
+        "remover contenido",
+        "cuando se baja el video",
+        "decision bajar video",
+        "zone media decision",
+        "que recomienda bajar"
+      ],
+      "respuestas": [
+        "La decisión 'bajar_video' aplica cuando el Indice_Sospecha está entre 21.0 y 35.0 —la zona media entre los percentiles 33 y 66. Representa el 33% del dataset (unos 1.059 registros). La evidencia justifica retirar el contenido para detener la desinformación, pero no es suficientemente sólida para romper contratos.",
+        "El 33% de publicaciones caen en la zona de 'bajar_video' (score entre 21 y 35). Es la decisión de término medio: hay señales de alerta —velocidad un poco elevada, perfil anónimo— pero sin la contundencia de un bot o cuenta de 0 días. Los perfiles anónimos son los más representados aquí, con un 48.7% de sus publicaciones en esta zona.",
+        "Esta decisión refleja incertidumbre controlada: el sistema detecta suficientes señales para no ignorar la publicación (no 'mantener'), pero no las suficientes para una acción legal (no 'cancelar'). Se traduce en: retirar el video del trending, no en rescindir contratos. Es la salida más conservadora que aun así protege a las marcas."
+      ]
+    },
+    {
+      "id": "decision_mantener",
+      "keywords": [
+        "mantener",
+        "dejar que siga",
+        "no hacer nada",
+        "cuando mantener",
+        "que significa mantener",
+        "porcentaje mantener",
+        "pruebas debiles",
+        "cuantos mantener",
+        "contenido legitimo",
+        "publicacion legitima",
+        "cuando no actuar"
+      ],
+      "respuestas": [
+        "La decisión 'mantener' aplica cuando el Indice_Sospecha es menor a 21.0 —por debajo del percentil 33— y representa el 33% del dataset. Significa que las pruebas son demasiado débiles, fabricadas o sin corroboración suficiente para actuar. Actuar en base a estas publicaciones sería un error con costo reputacional.",
+        "El 33% de publicaciones caen en 'mantener'. Las cuentas Verificadas son las protagonistas: el 61.5% de sus publicaciones queda en esta categoría —con mediana de Indice_Sospecha de apenas 19.1. También el 51% de los Fan_Antiguo. El mensaje es claro: las fuentes establecidas y con historial generan evidencia que no justifica acción.",
+        "Cuando el sistema dice 'mantener', no significa que Kai Duarte sea inocente —significa que esas publicaciones específicas no aportan evidencia accionable. Muchas pueden ser opiniones, contenido legítimo o simplemente ruido. El sistema filtra el ruido para que la decisión final se base solo en los registros con score alto."
+      ]
+    },
+    {
+      "id": "cuentas_bot_sospechosas",
+      "keywords": [
+        "cuantos bots",
+        "bots sospechosos",
+        "cuantas cuentas sospechosas",
+        "bot sospechoso",
+        "cuentas nuevas sospechosas",
+        "cuantos bots hay",
+        "hay bots",
+        "detecto bots",
+        "cuantas cuentas bot",
+        "bots en el dataset",
+        "cuentas falsas",
+        "cuantas cuentas falsas"
+      ],
+      "respuestas": [
+        "El dataset contiene 232 publicaciones de perfiles tipo Bot_Sospechoso —el 7.2% del total. El 100% de ellas cae en la decisión 'cancelar', con una mediana de Indice_Sospecha de 82.6 sobre 100. Además, hay 608 publicaciones de Cuenta_Nueva, de las cuales el 98.7% también cae en 'cancelar' con mediana 57.2.",
+        "Hay 232 bots y 608 cuentas nuevas en el dataset. Los bots son los más contaminantes: score mediano de 82.6, y el 100% activa 'cancelar'. Las cuentas nuevas siguen muy de cerca: mediana de 57.2 y 98.7% en 'cancelar'. Combinados suman 840 publicaciones —el 26% del dataset— que casi en su totalidad recomiendan acción inmediata.",
+        "Los bots son la señal más clara del caso: 232 publicaciones con Indice_Sospecha mediano de 82.6, todas recomendando 'cancelar'. Su patrón típico: cuenta creada ayer, velocidad de viralización en el percentil 95+, y texto repetitivo como '#CancelenAKai'. El sistema los detecta automáticamente sin necesidad de analizar el contenido del texto."
+      ]
+    },
+    {
+      "id": "publicacion_mas_sospechosa",
+      "keywords": [
+        "publicacion mas sospechosa",
+        "registro mas sospechoso",
+        "cual es la mas sospechosa",
+        "mayor indice sospecha",
+        "score mas alto",
+        "mas sospechoso del dataset",
+        "el peor registro",
+        "el registro mas raro",
+        "publicacion con mayor score",
+        "cual tiene mas sospecha",
+        "ejemplo sospechoso",
+        "caso mas sospechoso"
+      ],
+      "respuestas": [
+        "La publicación más sospechosa del dataset es el ID 2440, del usuario @despiertaya_760 en X. Es un Bot_Sospechoso que hizo un Repost con texto '#CancelenAKai — KAI ES CULPABLE', con 0 días de antigüedad de cuenta. Indice_Sospecha: 85.9 sobre 100. Activó los cinco factores de riesgo y aterrizó en la decisión 'cancelar'.",
+        "El record de sospecha lo tiene @despiertaya_760 (ID 2440): bot sospechoso, cuenta de 0 días, repost en X con velocidad de 23.9 interacciones por minuto. Score 85.9 de 100 —el máximo del dataset. No hay corroboraciones independientes y el contenido es amplificación pura, no evidencia original.",
+        "ID 2440 (@despiertaya_760): Indice_Sospecha de 85.9, el más alto de los 3.210 registros. ¿Por qué tan alto? El perfil Bot_Sospechoso ya aporta 35 puntos. La cuenta de 0 días pone la antigüedad invertida al máximo. Y la velocidad viral en percentil alto agrega otros 20 puntos. Es el caso de manual para explicar cómo funciona el sistema."
+      ]
+    },
+    {
+      "id": "publicacion_mas_confiable",
+      "keywords": [
+        "publicacion mas confiable",
+        "registro mas confiable",
+        "cual es la mas confiable",
+        "mayor confiabilidad",
+        "score confiabilidad mas alto",
+        "mas confiable del dataset",
+        "el mejor registro",
+        "publicacion legitima ejemplo",
+        "cual tiene mas confiabilidad",
+        "ejemplo confiable",
+        "caso mas confiable",
+        "fuente mas confiable"
+      ],
+      "respuestas": [
+        "La publicación más confiable es la del ID 1122, de @RedFactCheckCo en X —un perfil Verificado con 3.000 días de antigüedad (más de 8 años). Post original que pedía 'cautela: varias publicaciones repiten el mismo texto en minutos'. Score_Confiabilidad: 98.1. Indice_Sospecha: 1.5 —el mínimo del dataset.",
+        "@RedFactCheckCo (ID 1122): Score_Confiabilidad de 98.1 y un Indice_Sospecha de apenas 1.5. Es la antítesis del bot: cuenta verificada, 8+ años de historial, post original en primera persona, con velocidad de viralización baja. Irónicamente, su publicación advertía sobre el patrón de copia que el sistema detectó en los bots.",
+        "El mejor score de confiabilidad (98.1) es para el ID 1122 de @RedFactCheckCo: verificado, 3.000 días de cuenta, post original, sin contenido reciclado. Indice_Sospecha de 1.5 —el más bajo de los 3.210 registros. Contrasta directamente con el ID 2440 (score 85.9): juntos ilustran perfectamente el rango completo del sistema."
+      ]
+    },
+    {
+      "id": "hashtags_dominantes",
+      "keywords": [
+        "hashtags",
+        "que hashtags",
+        "hashtag mas usado",
+        "hashtag dominante",
+        "etiquetas",
+        "trending",
+        "que tendencias",
+        "tags mas usados",
+        "cuales son los hashtags",
+        "que etiquetas usan",
+        "hastag",
+        "hastags",
+        "tendencias del caso"
+      ],
+      "respuestas": [
+        "Los 5 hashtags más frecuentes del caso son: #EvaluandoLaSituacion (389 publicaciones), #QueDijoKai (383), #Cancelado (368), #KaiDuarte (357) y #CancelenAKai (319). También aparecen #JusticiaParaKai (276) y #VerificaAntesDeCompartir (102) —este último, curiosamente, es el que piden los propios verificadores como @RedFactCheckCo.",
+        "El caso generó dos frentes de hashtags claramente opuestos: los acusadores (#CancelenAKai con 319, #KaiMentiroso con 113, #FueraKai con 99) y los defensores (#JusticiaParaKai con 276, #YoLeCreoAKai con 97). Los neutrales (#EvaluandoLaSituacion con 389, #VerificaAntesDeCompartir con 102) dominan en volumen —lo que indica que la controversia aún no estaba resuelta al momento del análisis.",
+        "Diez hashtags principales: #EvaluandoLaSituacion (389), #QueDijoKai (383), #Cancelado (368), #KaiDuarte (357), #CancelenAKai (319), #JusticiaParaKai (276), #KaiMentiroso (113), #VerificaAntesDeCompartir (102), #FueraKai (99) y #YoLeCreoAKai (97). El volumen total de hashtags refleja la polarización: cada bando sumó cientos de menciones en menos de 7 horas."
+      ]
+    },
+    {
+      "id": "marcas_involucradas",
+      "keywords": [
+        "marcas",
+        "cuantas marcas",
+        "que marcas",
+        "marcas involucradas",
+        "patrocinadores",
+        "sponsors",
+        "marcas patrocinadoras",
+        "pulsotech",
+        "urbankrew",
+        "novavolt",
+        "que empresas",
+        "empresas involucradas",
+        "cuantos patrocinadores"
+      ],
+      "respuestas": [
+        "Hay 3 marcas patrocinadoras mencionadas en el dataset: PulsoTech con 64 menciones, UrbanKrew con 60 y NovaVolt con 57. Las tres tienen presencia en X con cuentas Verificadas (por ejemplo @novavolt_oficial y @urbankrew_oficial) y sus publicaciones institucionales tienen Indice_Sospecha muy bajo —son las más confiables del lado corporativo.",
+        "Las tres marcas son PulsoTech, UrbanKrew y NovaVolt —suman 181 menciones directas en el dataset. Sus cuentas oficiales están verificadas y emitieron declaraciones similares en las primeras horas ('Estamos evaluando la situación'). El sistema las clasifica con alta confiabilidad y baja sospecha, lo que significa que sus publicaciones no generan señales de alerta.",
+        "PulsoTech (64 menciones), UrbanKrew (60) y NovaVolt (57) son los tres patrocinadores en riesgo. El sistema las incluye en el análisis porque sus contratos con Kai Duarte son el objeto de la decisión final. Sus publicaciones institucionales están en zona 'mantener', lo que significa que la presión para actuar viene de otras fuentes, no de sus propias cuentas."
+      ]
+    },
+    {
+      "id": "contenido_reciclado_deteccion",
+      "keywords": [
+        "contenido reciclado",
+        "como detectaron el reciclado",
+        "deteccion reciclado",
+        "como saben que es reciclado",
+        "que es contenido reciclado",
+        "contenido repetido",
+        "publicaciones repetidas",
+        "textos copiados",
+        "reciclaje de contenido",
+        "como identificaron reciclado",
+        "identico a publicacion anterior",
+        "copiar contenido"
+      ],
+      "respuestas": [
+        "El dataset incluye una columna 'Contenido_Reciclado' con tres valores: 'No' (3.020 registros, 94.1%), 'Sí (idéntico a publicación de 2023 sobre otro creador)' (121 registros, 3.8%) y 'Posible (similar a una publicación anterior)' (69 registros, 2.1%). En total, el 5.9% del dataset es contenido reciclado —tomado de otro escándalo de 2023 y reutilizado contra Kai Duarte.",
+        "La detección de contenido reciclado fue parte del preprocesamiento del dataset: 121 publicaciones son texto idéntico al de un escándalo de 2023 con otro creador. Otras 69 son 'posiblemente similares'. El sistema les asigna un factor de riesgo de 1.0 y 0.6 respectivamente (0.0 si no hay reciclado), que contribuye al Indice_Sospecha con peso del 10%.",
+        "El 5.9% del dataset —190 publicaciones— fue marcado como contenido reciclado. La señal más fuerte son los 121 registros idénticos a publicaciones de 2023, lo que indica que alguien reutilizó deliberadamente contenido de otro escándalo para amplificar el caso de Kai Duarte. El sistema captura esto en el factor f4_reciclado con un peso del 10% en el Indice_Sospecha."
+      ]
+    },
+    {
+      "id": "origen_datos",
+      "keywords": [
+        "de donde vienen los datos",
+        "origen de los datos",
+        "que datos usaron",
+        "dataset",
+        "de donde sacan los datos",
+        "fuente de datos",
+        "base de datos",
+        "csv",
+        "de donde son los datos",
+        "cuantos datos hay",
+        "cuantos registros",
+        "cuantas publicaciones hay"
+      ],
+      "respuestas": [
+        "Los datos vienen de un CSV con 3.210 publicaciones de cuatro plataformas: X (1.442 registros, 44.9%), TikTok (894, 27.8%), Instagram (667, 20.8%) y Foros anónimos (207, 6.4%). El CSV se cargó a Supabase (PostgreSQL) sin modificar —flujo ELT puro. Todas las transformaciones y scores se calcularon con SQL dentro de la base de datos.",
+        "El dataset son 3.210 publicaciones capturadas en un período de aproximadamente 7 horas (desde el clip viral a las 11:47 p.m. hasta las 6:00 a.m.). Incluye publicaciones de X, TikTok, Instagram y foros anónimos. La carga fue directa del CSV crudo a Supabase —ningún paso de limpieza en Python, todo se resolvió con SQL en la base.",
+        "3.210 registros, 17 columnas, cuatro plataformas. La arquitectura es ELT: el CSV va directo a Supabase sin tocar, y las fórmulas del Indice_Sospecha y el Score_Confiabilidad viven como funciones SQL dentro de Supabase. Esto garantiza que el dashboard consulte siempre los cálculos actualizados sin depender de un script Python corriendo en paralelo."
+      ]
+    },
+    {
+      "id": "por_que_no_machine_learning",
+      "keywords": [
+        "por que no machine learning",
+        "por que no ml",
+        "no usaron ia",
+        "no usaron inteligencia artificial",
+        "por que no usaron modelo",
+        "por que sin modelo",
+        "por que reglas",
+        "por que no clasificador",
+        "por que no red neuronal",
+        "no usaron ml",
+        "sin machine learning",
+        "por que reglas simples",
+        "enfoque basado en reglas"
+      ],
+      "respuestas": [
+        "Tres razones concretas: primero, no hay etiquetas de entrenamiento —nadie sabe de antemano cuáles publicaciones son falsas. Segundo, el tiempo de ejecución es de 4 horas —no hay tiempo para entrenar, validar y desplegar un modelo. Tercero, las reglas basadas en percentiles son auditables: el jurado puede preguntarle a cualquier persona 'por qué este registro tiene score 82' y la respuesta es directa y verificable.",
+        "Los enfoques de ML supervisado requieren datos etiquetados; los no supervisados (clustering) son difíciles de explicar en una demo de pitch. Un score ponderado con percentiles produce exactamente el mismo efecto discriminatorio —separa bots de verificados con una diferencia de 63.5 puntos en mediana— con cero costo de entrenamiento y máxima transparencia.",
+        "La decisión fue pragmática: en 4 horas de reto, un modelo de ML agrega complejidad sin añadir valor visible. El Indice_Sospecha ya discrimina perfectamente: Bot_Sospechoso con mediana 82.6 vs Verificado con mediana 19.1 —una separación de 63 puntos. Eso es lo que necesita el jurado para confiar en el sistema, y se logra con cinco features ponderadas y dos cortes de percentil."
+      ]
+    },
+    {
+      "id": "como_funciona_sistema",
+      "keywords": [
+        "como funciona el sistema",
+        "como funciona",
+        "explica el sistema",
+        "que hace el sistema",
+        "como trabaja el sistema",
+        "arquitectura del sistema",
+        "flujo del sistema",
+        "como opera",
+        "que hace la herramienta",
+        "explica la herramienta",
+        "como analiza",
+        "que analiza el sistema",
+        "pipeline del sistema"
+      ],
+      "respuestas": [
+        "El sistema sigue tres pasos: 1) Carga del CSV crudo de 3.210 publicaciones a Supabase (PostgreSQL) sin modificar nada. 2) Cálculo de Indice_Sospecha y Score_Confiabilidad con SQL dentro de Supabase —usando funciones y vistas que procesan las 17 columnas del dataset. 3) Dashboard HTML que consulta Supabase en tiempo real y muestra los scores, la distribución de decisiones y el chat de demo.",
+        "Es un pipeline ELT (Extract, Load, Transform) donde la 'T' vive en la base de datos, no en el cliente. El CSV entra a Supabase tal cual, y SQL hace todo el trabajo pesado: calcula los percentiles, pondera las features y asigna las tres decisiones. El resultado se expone en un dashboard interactivo que cualquier decisor puede consultar sin saber SQL.",
+        "El flujo completo: CSV con 3.210 publicaciones de X, TikTok, Instagram y foros → carga directa a Supabase → SQL calcula Indice_Sospecha (0-100) y Score_Confiabilidad (0-100) por publicación → cortes en percentil 33 (score=21) y percentil 66 (score=35) generan tres zonas: mantener (33%), bajar_video (33%), cancelar (34%) → dashboard HTML + chatbot de demo para presentar al jurado."
+      ]
+    },
+    {
+      "id": "por_que_registro_sospechoso",
+      "keywords": [
+        "por que este registro es sospechoso",
+        "por que tiene score alto",
+        "por que score alto",
+        "por que es sospechoso",
+        "que lo hace sospechoso",
+        "explica el score alto",
+        "que significa score 85",
+        "por que indice alto",
+        "por que califica como cancelar",
+        "que hizo para tener ese score",
+        "por que tiene ese numero",
+        "como llego a ese score"
+      ],
+      "respuestas": [
+        "Tomemos el caso concreto del ID 2440 (@despiertaya_760, score 85.9): el perfil es Bot_Sospechoso —aporta 35 puntos de entrada. La cuenta tiene 0 días de antigüedad —la antigüedad invertida llega a su máximo, aportando 25 puntos más. La velocidad de viralización está en percentil alto. Esos tres factores solos ya superan el corte de 35 para 'cancelar'. El tipo de publicación (Repost) agrega un poco más.",
+        "Un registro llega a score alto porque acumula puntos en múltiples factores a la vez. El ejemplo más extremo es ID 2440: Bot (35 pts) + cuenta de 0 días (25 pts) + velocidad viral alta (20 pts) = 80 puntos antes de considerar el tipo de contenido. No se necesita contenido reciclado ni transcripción de audio para llegar a 'cancelar' cuando el perfil y la antigüedad ya disparan las señales.",
+        "La pregunta clave es siempre: ¿qué factores se activaron? Para un registro con score alto típicamente son: perfil de riesgo (Bot o Cuenta_Nueva, vale 35%), cuenta muy reciente (antigüedad invertida alta, vale 25%) y velocidad de viralización en el top del percentil (vale 20%). Esos tres juntos ya superan 60 puntos, muy por encima del corte de 35 para 'cancelar'."
+      ]
+    }
+  ],
+  "fallback": [
+    "Esa pregunta está fuera del alcance de esta demo, pero puedo explicarte el Indice_Sospecha, el Score_Confiabilidad, cómo se detectó el contenido reciclado, por qué no se usó Machine Learning, o qué significan las tres decisiones del sistema.",
+    "No tengo esa información disponible en este demo. Lo que sí puedo mostrarte es cómo el sistema clasifica las 3.210 publicaciones en tres decisiones (cancelar 34%, bajar_video 33%, mantener 33%), o los detalles de cualquiera de los dos scores. ¿Quieres que te explique alguno?",
+    "Buena pregunta —está fuera del guión de la demo. Pero puedo darte cifras concretas sobre los bots (232 publicaciones, mediana de sospecha 82.6), los hashtags dominantes del caso, las tres marcas patrocinadoras involucradas, o la publicación más confiable del dataset. ¿Por dónde empezamos?"
+  ]
+}
